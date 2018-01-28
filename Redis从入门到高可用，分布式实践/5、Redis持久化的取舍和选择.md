@@ -239,7 +239,7 @@ rpush list a b c
 
 ## AOF重写流程
 
-![](http://p0lgavykh.bkt.clouddn.com/2018-01-27_121044.jpg)
+![2018-01-27_121044.jpg](https://i.loli.net/2018/01/28/5a6d3196328e9.jpg)
 
 ## 配置
 
