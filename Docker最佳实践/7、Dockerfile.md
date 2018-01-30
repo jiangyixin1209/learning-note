@@ -149,7 +149,7 @@ WORKDIR /root
 CMD /usr/sbin/nginx
 ```
 
-# Dockerfile最佳时间
+# Dockerfile最佳实践
 
 ## 错误定位
 
