@@ -301,3 +301,26 @@ sub_dir
 
 # 获取文件属性
 
+Python可以很轻松的获取文件大小和修改时间等文件属性。可以通过使用 `os.stat()` ， `os.scandir()` 或 `pathlib.Path` 来获取。
+
+`os.scandir()` 和 `pathlib.Path()` 能直接获取到包含文件属性的目录列表。这可能比使用 `os.listdir()` 列出文件然后获取每个文件的文件属性信息更加有效。
+
+下面的例子显示了如何获取 `my_directory` 中文件的最后修改时间。以时间戳的方式输出：
+
+```python
+import os
+
+with os.scandir('my_directory') as entries:
+    for entry in entries:
+        info = entry.stat()
+        print(info.st_mtime)
+        
+"""
+1548163662.3952665
+1548163689.1982062
+1548163697.9175904
+1548163721.1841028
+1548163740.765162
+1548163769.4702623
+"""
+```
