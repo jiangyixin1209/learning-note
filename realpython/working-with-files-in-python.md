@@ -1,6 +1,8 @@
+[TOC]
+
 Python中有几个内置模块和方法来处理文件。这些方法被分割到例如`os`,  `os.path` , `shutil`  和 `pathlib` 等等几个模块中。文章将列举Python中对文件最常用的操作和方法。
 
-在这篇指南中，你将学习如何：
+在这篇文章中，你将学习如何：
 
 * 获取文件属性
 * 创建目录
@@ -22,7 +24,7 @@ with open('data.txt', 'r') as f:
     print('context: {}'.format(data))
 ```
 
-open()接收一个文件名和一个模式作为它的参数，`r` 表示以只读模式打开文件。想要往文件中写数据的话，则用`w` 作为参数。
+`open()` 接收一个文件名和一个模式作为它的参数，`r` 表示以只读模式打开文件。想要往文件中写数据的话，则用`w` 作为参数。
 
 ```python
 with open('data.txt', 'w') as f:
@@ -75,12 +77,12 @@ for entry in entries:
     print(entry)
 
 """
-sub_dir_c
 file1.py
-sub_dir_b
-file3.txt
 file2.csv
+file3.txt
 sub_dir
+sub_dir_b
+sub_dir_c
 """
 
 ```
@@ -112,12 +114,12 @@ with os.scandir('my_directory') as entries:
 这里 `os.scandir()` 和with语句一起使用，因为它支持上下文管理协议。使用上下文管理器关闭迭代器并在迭代器耗尽后自动释放获取的资源。在 `my_directory` 打印文件名的结果就和在 `os.listdir()` 例子中看到的一样：
 
 ```shell
-sub_dir_c
 file1.py
-sub_dir_b
-file3.txt
 file2.csv
+file3.txt
 sub_dir
+sub_dir_b
+sub_dir_c
 ```
 
 另一个获取目录列表的方法是使用 `pathlib` 模块：
@@ -141,12 +143,12 @@ for entry in entries.iterdir():
 运行上述代码会得到如下结果:
 
 ```python
-sub_dir_c
 file1.py
-sub_dir_b
-file3.txt
 file2.csv
+file3.txt
 sub_dir
+sub_dir_b
+sub_dir_c
 ```
 
 使用 `pathlib.Path()` 或 `os.scandir()` 来替代 `os.listdir()` 是获取目录列表的首选方法，尤其是当你需要获取文件类型和文件属性信息的时候。`pathlib.Path()` 提供了在 `os` 和 `shutil` 中大部分处理文件和路径的功能，并且它的方法比这些模块更加有效。我们将讨论如何快速的获取文件属性。
@@ -157,7 +159,145 @@ sub_dir
 | os.scandir()             | 返回一个迭代器包含目录中所有的对象，对象包含文件属性信息 |
 | pathlib.Path().iterdir() | 返回一个迭代器包含目录中所有的对象，对象包含文件属性信息 |
 
+这些函数返回目录中所有内容的列表，包括子目录。这可能并总是你一直想要的结果，下一节将向你展示如何从目录列表中过滤结果。
 
+## 列出目录中的所有文件
+
+这节将向你展示如何使用 `os.listdir()` ，`os.scandir()` 和 `pathlib.Path()` 打印出目录中文件的名称。为了过滤目录并仅列出 `os.listdir()` 生成的目录列表的文件，要使用 `os.path` ：
+
+```python
+import os
+
+basepath = 'my_directory'
+for entry in os.listdir(basepath):
+    # 使用os.path.isfile判断该路径是否是文件类型
+    if os.path.isfile(os.path.join(base_path, entry)):
+        print(entry)
+```
+
+在这里调用 `os.listdir()` 返回指定路径中所有内容的列表，接着使用 `os.path.isfile()` 过滤列表让其只显示文件类型而非目录类型。代码执行结果如下：
+
+```shell
+file1.py
+file2.csv
+file3.txt
+```
+
+一个更简单的方式来列出一个目录中所有的文件是使用 `os.scandir()` 或 `pathlib.Path()` :
+
+```python
+import os
+
+basepath = 'my_directory'
+with os.scandir(basepath) as entries:
+    for entry in entries:
+        if entry.is_file():
+            print(entry.name)
+```
+
+使用 `os.scandir()` 比起 `os.listdir()` 看上去更清楚和更容易理解。对 `ScandirIterator` 的每一项调用 `entry.isfile()` ，如果返回 `True` 则表示这一项是一个文件。上述代码的输出如下：
+
+```shell
+file1.py
+file3.txt
+file2.csv
+```
+
+接着，展示如何使用 `pathlib.Path()` 列出一个目录中的文件：
+
+```python
+from pathlib import Path
+
+basepath = Path('my_directory')
+for entry in basepath.iterdir():
+    if entry.is_file():
+        print(entry.name)
+```
+
+在 `.iterdir()` 产生的每一项调用 `.is_file()` 。产生的输出结果和上面相同：
+
+```shell
+file1.py
+file3.txt
+file2.csv
+```
+
+如果将for循环和if语句组合成单个生成器表达式，则上述的代码可以更加简洁。关于生成器表达式，推荐一篇[Dan Bader](https://dbader.org/blog/python-generator-expressions) 的文章。
+
+修改后的版本如下：
+
+```python
+from pathlib import Path
+
+basepath = Path('my_directory')
+files_in_basepath = (entry for entry in basepath.iterdir() if entry.is_file())
+for item in files_in_basepath:
+    print(item.name)
+```
+
+上述代码的执行结果和之前相同。本节展示使用 `os.scandir()` 和 `pathlib.Path()` 过滤文件或目录比使用 `os.listdir()` 和 `os.path` 更直观，代码看起来更简洁。
+
+## 列出子目录
+
+如果要列出子目录而不是文件，请使用下面的方法。现在展示如何使用 `os.listdir()` 和 `os.path()` :
+
+```python
+import os
+
+basepath = 'my_directory'
+for entry in os.listdir(basepath):
+    if os.path.isdir(os.path.join(basepath, entry)):
+        print(entry)
+```
+
+当你多次调用 `os.path,join()` 时，以这种方式操作文件系统就会变得很笨重。在我电脑上运行此代码会产生以下输出：
+
+```shell
+sub_dir
+sub_dir_b
+sub_dir_c
+```
+
+下面是如何使用 `os.scandir()` ：
+
+```python
+import os
+
+basepath = 'my_directory'
+with os.scandir(basepath) as entries:
+    for entry in entries:
+        if entry.is_dir():
+            print(entry.name)
+```
+
+与文件列表中的示例一样，此处在 `os.scandir()` 返回的每一项上调用 `.is_dir()` 。如果这项是目录，则 `is_dir()` 返回 True，并打印出目录的名称。输出结果和上面相同：
+
+```shell
+sub_dir_c
+sub_dir_b
+sub_dir
+```
+
+下面是如何使用 `pathlib.Path()` ：
+
+```python
+from pathlib import Path
+
+basepath = Path('my_directory')
+for entry in basepath.iterdir():
+    if entry.is_dir():
+        print(entry.name)
+```
+
+在 `.iterdir()` 迭代器返回的每一项上调用 `is_dir()` 检查是文件还是目录。如果该项是目录，则打印其名称，并且生成的输出与上一示例中的输出相同：
+
+```shell
+sub_dir_c
+sub_dir_b
+sub_dir
+```
 
 ***
+
+# 获取文件属性
 
