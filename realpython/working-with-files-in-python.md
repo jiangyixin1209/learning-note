@@ -91,7 +91,73 @@ sub_dir
 
 `os.scandir()` 在Python 3.5 中被引用，其文档为 [PEP 471](https://www.python.org/dev/peps/pep-0471/) 。
 
-`os.scandir()` 被调用时返回一个迭代器而不是一个列表。
+`os.scandir()` 调用时返回一个迭代器而不是一个列表。
+
+```python
+import os
+entries = os.scandir('my_directory')
+print(entries)
+# <posix.ScandirIterator at 0x105b4d4b0>
+```
+
+ScandirIterator 指向了当前目录中的所有条目。你可以遍历迭代器的内容，并打印文件名。
+
+```python
+import os
+with os.scandir('my_directory') as entries:
+    for entry in entries:
+        print(entry.name)
+```
+
+这里 `os.scandir()` 和with语句一起使用，因为它支持上下文管理协议。使用上下文管理器关闭迭代器并在迭代器耗尽后自动释放获取的资源。在 `my_directory` 打印文件名的结果就和在 `os.listdir()` 例子中看到的一样：
+
+```shell
+sub_dir_c
+file1.py
+sub_dir_b
+file3.txt
+file2.csv
+sub_dir
+```
+
+另一个获取目录列表的方法是使用 `pathlib` 模块：
+
+```python
+from pathlib import Path
+
+entries = Path('my_directory')
+for entry in entries.iterdir():
+    print(entry.name)
+```
+
+`pathlib.Path()` 返回的是 `PosixPath` 或 `WindowsPath` 对象，这取决于操作系统。
+
+`pathlib.Path()` 对象有一个 `.iterdir()` 的方法用于创建一个迭代器包含该目录下所有文件和目录。由 `.iterdir()` 生成的每个条目都包含文件或目录的信息，例如其名称和文件属性。`pathlib` 在Python3.4时被第一次引入，并且是对Python一个很好的加强，它为文件系统提供了面向对象的接口。
+
+在上面的例子中，你调用 `pathlib.Path()` 并传入了一个路径参数。然后调用 `.iterdir()` 来获取 `my_directory` 下的所有文件和目录列表。
+
+`pathlib` 提供了一组类，以简单并且面向对象的方式提供了路径上的大多数常见的操作。使用 `pathlib` 比起使用 `os` 中的函数更加有效。和 `os` 相比，使用 `pathlib` 的另一个好处是减少了操作文件系统路径所导入包或模块的数量。想要了解更多信息，可以阅读 [Python 3’s pathlib Module: Taming the File System](https://realpython.com/python-pathlib/) 。
+
+运行上述代码会得到如下结果:
+
+```python
+sub_dir_c
+file1.py
+sub_dir_b
+file3.txt
+file2.csv
+sub_dir
+```
+
+使用 `pathlib.Path()` 或 `os.scandir()` 来替代 `os.listdir()` 是获取目录列表的首选方法，尤其是当你需要获取文件类型和文件属性信息的时候。`pathlib.Path()` 提供了在 `os` 和 `shutil` 中大部分处理文件和路径的功能，并且它的方法比这些模块更加有效。我们将讨论如何快速的获取文件属性。
+
+| 函数                     | 描述                                                     |
+| ------------------------ | -------------------------------------------------------- |
+| os.listdir()             | 以列表的方式返回目录中所有的文件和文件夹                 |
+| os.scandir()             | 返回一个迭代器包含目录中所有的对象，对象包含文件属性信息 |
+| pathlib.Path().iterdir() | 返回一个迭代器包含目录中所有的对象，对象包含文件属性信息 |
+
+
 
 ***
 
