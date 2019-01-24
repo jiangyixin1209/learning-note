@@ -324,3 +324,78 @@ with os.scandir('my_directory') as entries:
 1548163769.4702623
 """
 ```
+
+`os.scandir()` 返回一个 `ScandirIterator` 对象。`ScandirIterator` 对象中的每一项有 `.stat()` 方法能获取关于它指向文件或目录的信息。`.stat()` 提供了例如文件大小和最后修改时间的信息。在上面的示例中，代码打印了 `st_time` 属性，该属性是上次修改文件内容的时间。
+
+`pathlib` 模块具有相应的方法，用于获取相同结果的文件信息:
+
+```python
+from pathlib import Path
+
+basepath = Path('my_directory')
+for entry in basepath.iterdir():
+    info = entry.stat()
+    print(info.st_mtime)
+
+"""
+1548163662.3952665
+1548163689.1982062
+1548163697.9175904
+1548163721.1841028
+1548163740.765162
+1548163769.4702623
+"""
+```
+
+在上面的例子中，循环 `.iterdir()` 返回的迭代器并通过对其中每一项调用 `.stat()` 来获取文件属性。`st_mtime` 属性是一个浮点类型的值，表示的是时间戳。为了让 `st_time` 返回的值更容易阅读，你可以编写一个辅助函数将其转换为一个 `datetime` 对象：
+
+```python
+import datetime                                                                   
+from pathlib import Path                                                          
+                                                                                  
+                                                                                  
+def timestamp2datetime(timestamp, convert_to_local=True, utc=8, is_remove_ms=True)
+    """                                                                           
+    转换 UNIX 时间戳为 datetime对象                                                       
+    :param timestamp: 时间戳                                                         
+    :param convert_to_local: 是否转为本地时间                                             
+    :param utc: 时区信息，中国为utc+8                                                     
+    :param is_remove_ms: 是否去除毫秒                                                   
+    :return: datetime 对象                                                          
+    """                                                                           
+    if is_remove_ms:                                                              
+        timestamp = int(timestamp)                                                
+    dt = datetime.datetime.utcfromtimestamp(timestamp)                            
+    if convert_to_local:                                                          
+        dt = dt + datetime.timedelta(hours=utc)                                   
+    return dt                                                                     
+                                                                                  
+                                                                                  
+def convert_date(timestamp, format='%Y-%m-%d %H:%M:%S'):                          
+    dt = timestamp2datetime(timestamp)                                            
+    return dt.strftime(format)                                                    
+                                                                                  
+                                                                                  
+basepath = Path('my_directory')                                                   
+for entry in basepath.iterdir():
+    if entry.is_file()
+    	info = entry.stat()                                                           
+    	print('{} 上次修改时间为 {}'.format(entry.name, timestamp2datetime(info.st_mtime)))  
+```
+
+首先得到 `my_directory` 中文件的列表以及它们的属性，然后调用 `convert_date()` 来转换文件最后修改时间让其以一种人类可读的方式显示。`convert_date()` 使用 `.strftime()` 将datetime类型转换为字符串。
+
+上述代码的输出结果：
+
+```shell
+file3.txt 上次修改时间为 2019-01-24 09:04:39
+file2.csv 上次修改时间为 2019-01-24 09:04:39
+file1.py 上次修改时间为 2019-01-24 09:04:39
+```
+
+将日期和时间转换为字符串的语法可能会让你感到混乱。如果要了解更多的信息，请查询相关的[官方文档](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior) 。另一个方式则是阅读 [http://strftime.org](http://strftime.org) 。
+
+***
+
+# 创建目录
+
