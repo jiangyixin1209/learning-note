@@ -6,7 +6,7 @@ Python中有几个内置模块和方法来处理文件。这些方法被分割�
 
 * 获取文件属性
 * 创建目录
-* 匹配文件名中的模式
+* 文件名的匹配模式
 * 遍历目录树
 * 创建临时文件和目录
 * 删除文件和目录
@@ -398,4 +398,113 @@ file1.py 上次修改时间为 2019-01-24 09:04:39
 ***
 
 # 创建目录
+
+你编写的程序迟早需要创建目录以便在其中存储数据。 `os` 和 `pathlib` 包含了创建目录的函数。我们将会考虑如下方法：
+
+| 方法                 | 描述                       |
+| -------------------- | -------------------------- |
+| os.mkdir()           | 创建单个子目录             |
+| os.makedirs()        | 创建多个目录，包括中间目录 |
+| Pathlib.Path.mkdir() | 创建单个或多个目录         |
+
+## 创建单个目录
+
+要创建单个目录，把目录路径作为参数传给 `os.mkdir()` :
+
+```python
+import os
+
+os.mkdir('example_directory')
+```
+
+如果该目录已经存在，`os.mkdir()` 将抛出 `FileExistsError` 异常。或者，你也可以使用 `pathlib` 来创建目录:
+
+```python
+from pathlib import Path
+
+p = Path('example_directory')
+p.mkdir()
+```
+
+如果路径已经存在，`mkdir()` 会抛出 `FileExistsError` 异常:
+
+```shell
+FileExistsError: [Errno 17] File exists: 'example_directory'
+```
+
+为了避免像这样的错误抛出， 当发生错误时捕获错误并让你的用户知道:
+
+```python
+from pathlib import Path
+
+p = Path('example_directory')
+try:
+    p.mkdir()
+except FileExistsError as e:
+    print(e)
+```
+
+或者，你可以给 `.mkdir()` 传入 `exist_ok=True` 参数来忽略 `FileExistsError` 异常:
+
+```python
+from pathlib import Path
+
+p = Path('example_directory')
+p.mkdir(exist_ok=True)
+```
+
+如果目录已存在，则不会引起错误。
+
+## 创建多个目录
+
+`os.makedirs()` 和 `os.mkdir()` 类似。两者之间的区别在于，`os.makedirs()` 不仅可以创建单独的目录，还可以递归的创建目录树。换句话说，它可以创建任何必要的中间文件夹，来确保存在完整的路径。
+
+`os.makedirs()` 和在bash中运行 `mkdir -p` 类似。例如，要创建一组目录像 2018/10/05，你可以像下面那样操作:
+
+```python
+import os
+
+os.makedirs('2018/10/05', mode=0o770)
+```
+
+上述代码创建了 `2018/10/05` 的目录结构并为所有者和组用户提供读、写和执行权限。默认的模式为 `0o777` ，增加了其他用户组的权限。有关文件权限以及模式的应用方式的更多详细信息，请参考 [文档](https://docs.python.org/3/library/os.html#os.makedirs) 。
+
+运行 `tree` 命令确认我们应用的权限:
+
+```shell
+$ tree -p -i .
+.
+[drwxrwx---]  2018
+[drwxrwx---]  10
+[drwxrwx---]  05
+```
+
+上述代码打印出当前目录的目录树。 `tree` 通常被用来以树形结构列出目录的内容。传入 `-p` 和 `-i` 参数则会以垂直列表打印出目录名称以及其文件权限信息。`-p` 用于输出文件权限，`-i` 则用于让 `tree` 命令产生一个没有缩进线的垂直列表。
+
+正如你所看到的，所有的目录都拥有 770 权限。另一个方式创建多个目录是使用 `pathlib.Path` 的 `.mkdir()` :
+
+```python
+from pathlib import Path
+
+p = Path('2018/10/05')
+p.mkdir(parents=True, exist_ok=True)
+```
+
+通过给 `Path.mkdir()` 传递 `parents=True` 关键字参数使它创建 `05` 目录和使其路径有效的所有父级目录。
+
+在默认情况下，`os.makedirs()` 和 `pathlib.Path.mkdir()` 会在目标目录存在的时候抛出 `OSError` 。通过每次调用函数时传递 `exist_ok=True` 作为关键字参数则可以覆盖此行为（从Python3.2开始）。
+
+运行上述代码会得到像下面的结构：
+
+```shell
+└── 2018
+    └── 10
+        └── 05
+```
+
+我更喜欢在创建目录时使用 `pathlib` ，因为我可以使用相同的函数方法来创建一个或多个目录。
+
+***
+
+# 文件名的匹配模式
 
