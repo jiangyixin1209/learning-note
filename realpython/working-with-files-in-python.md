@@ -6,7 +6,7 @@ Python中有几个内置模块和方法来处理文件。这些方法被分割�
 
 * 获取文件属性
 * 创建目录
-* 文件名的匹配模式
+* 文件名模式匹配
 * 遍历目录树
 * 创建临时文件和目录
 * 删除文件和目录
@@ -506,5 +506,151 @@ p.mkdir(parents=True, exist_ok=True)
 
 ***
 
-# 文件名的匹配模式
+# 文件名模式匹配
+
+使用上述方法之一获取目录中的文件列表后，你可能希望搜索和特定的模式匹配的文件。
+
+下面这些是你可以使用的方法和函数：
+
+* `endswith()` 和 `startswith()` 字符串方法
+* `fnmatch.fnmatch()`
+* `glob.glob()`
+* `pathlib.Path.glob()`
+
+这些方法和函数是下面要讨论的。本小节的示例将在名为 `some_directory` 的目录下执行，该目录具有以下的结构：
+
+```shell
+.
+├── admin.py
+├── data_01_backup.txt
+├── data_01.txt
+├── data_02_backup.txt
+├── data_02.txt
+├── data_03_backup.txt
+├── data_03.txt
+├── sub_dir
+│   ├── file1.py
+│   └── file2.py
+└── tests.py
+```
+
+如果你正在使用 Bash shell，你可以使用以下的命令创建上述目录结构:
+
+```shell
+mkdir some_directory
+cd some_directory
+mkdir sub_dir
+touch sub_dir/file1.py sub_dir/file2.py
+touch data_{01..03}.txt data_{01..03}_backup.txt admin.py tests.py
+```
+
+这将会创建 `some_directory` 目录并进入它，接着创建 `sub_dir` 。下一行在 `sub_dir` 创建 `file1.py` 和 `file2.py` ，最后一行使用扩展创建其它所有文件。想要学习更多关于shell扩展，请阅读 [这里](http://linuxcommand.org/lc3_lts0080.php) 。
+
+## 使用字符串方法
+
+Python有几个内置 [修改和操作字符串](https://realpython.com/python-strings/) 的方法。当在匹配文件名时，其中的两个方法 `.startswith()` 和 `.endswith()` 非常有用。要做到这点，首先要获取一个目录列表，然后遍历。 
+
+```python
+import os
+
+for f_name in os.listdir('some_directory'):
+    if f_name.endswith('.txt'):
+        print(f_name)
+```
+
+上述代码找到 `some_directory` 中的所有文件，遍历并使用 `.endswith()` 来打印所有扩展名为 `.txt` 的文件名。运行代码在我的电脑上输出如下:
+
+```shell
+data_01.txt
+data_01_backup.txt
+data_02.txt
+data_02_backup.txt
+data_03.txt
+data_03_backup.txt
+```
+
+## 使用 `fnmatch` 进行简单文件名模式匹配
+
+字符串方法匹配的能力是有限的。`fnmatch` 有对于模式匹配有更先进的函数和方法。我们将考虑使用 `fnmatch.fnmatch()` ，这是一个支持使用 `*` 和 `?` 等通配符的函数。例如，使用 `fnmatch` 查找目录中所有 `.txt` 文件，你可以这样做:
+
+```python
+import os
+import fnmatch
+
+for f_name in os.listdir('some_directory'):
+    if fnmatch.fnmatch(f_name, '*.txt'):
+        print(f_name)
+```
+
+迭代 `some_directory` 中的文件列表，并使用 `.fnmatch()` 对扩展名为 `.txt` 的文件执行通配符搜索。
+
+## 更先进的模式匹配
+
+假设你想要查找符合特定掉件的 `.txt` 文件。例如，你可能指向找到包含单次 `data` 的  `.txt`文件，一组下划线之间的数字，以及文件名中包含单词 `backup` 。就类似于 `data_01_backup`, `data_02_backup`, 或 `data_03_backup` 。
+
+你可以这样使用 `fnmatch.fnmatch()` :
+
+```python
+import os
+import fnmatch
+
+for f_name in os.listdir('some_directory'):
+    if fnmatch.fnmatch(f_name, 'data_*_backup.txt'):
+        print(f_name)
+```
+
+这里就仅仅打印出匹配 `data_*_backup.txt` 模式的文件名称。模式中的 `*` 将匹配任何字符，因此运行这段代码则将查找文件名以 `data` 开头并以 `backup.txt` 的所有文本文件，就行下面的输出所示 :
+
+```python
+data_01_backup.txt
+data_02_backup.txt
+data_03_backup.txt
+```
+
+## 使用 `glob` 进行文件名模式匹配
+
+另一个有用的模式匹配模块是 `glob` 。
+
+`.glob()` 在 `glob` 模块中的左右就像 `fnmatch.fnmatch()`，但是与 `fnmach.fnmatch()` 不同的是，它将以 `.` 开头的文件视为特殊文件。
+
+UNIX和相关系统在文件列表中使用通配符像 `?` 和 `*` 表示全匹配。
+
+例如，在UNIX shell中使用 `mv *.py python_files` 移动所有 `.py` 扩展名 的文件从当前目录到 `python_files` 。这 `*` 是一个通配符表示任意数量的字符，`*.py` 是一个全模式。Windows操作系统中不提供此shell功能。但 `glob` 模块在Python中添加了此功能，使得Windows程序可以使用这个特性。
+
+这里有一个使用 `glob` 模块在当前目录下查询所有Python代码文件:
+
+```python
+import glob
+
+print(glob.glob('*.py'))
+```
+
+`glob.glob('*.py')` 搜索当前目录中具有 `.py` 扩展名的文件，并且将它们以列表的形式返回。 `glob` 还支持 shell 样式的通配符来进行匹配 :
+
+```shell
+import glob
+
+for name in glob.glob('*[0-9]*.txt'):
+    print(name)
+```
+
+这将找到所有文件名中包含数字的文本文件(`.txt`) :
+
+```shell
+data_01.txt
+data_01_backup.txt
+data_02.txt
+data_02_backup.txt
+data_03.txt
+data_03_backup.txt
+```
+
+`glob` 也很容易在子目录中递归的搜索文件:
+
+```python
+import glob
+
+for name in glob.iglob('**/*.py', recursive=True):
+    print(name)
+```
 
