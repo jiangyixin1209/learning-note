@@ -654,3 +654,189 @@ for name in glob.iglob('**/*.py', recursive=True):
     print(name)
 ```
 
+这里例子使用了 `glob.iglob()` 在当前目录和子目录中搜索所有的 `.py` 文件。传递 `recursive=True` 作为 `.iglob()` 的参数使其搜索当前目录和子目录中的 `.py` 文件。`glob.glob()` 和 `glob.iglob()` 不同之处在于，`iglob()` 返回一个迭代器而不是一个列表。
+
+运行上述代码会得到以下结果:
+
+```python
+admin.py
+tests.py
+sub_dir/file1.py
+sub_dir/file2.py
+```
+
+`pathlib` 也包含类似的方法来灵活的获取文件列表。下面的例子展示了你可以使用 `.Path.glob()` 列出以字母 `p` 开始的文件类型的文件列表。
+
+```python
+from pathlib import Path
+
+p = Path('.')
+
+for name in p.glob('*.p*'):
+    print(name)
+```
+
+调用 `p.glob('*.p*')` 会返回一个指向当前目录中所有扩展名以字母 `p` 开头的文件的生成器对象。
+
+`Path.glob()` 和上面讨论过的 `os.glob()` 类似。正如你看到的， `pathlib` 混合了许多 `os` ， `os.path` 和 `glob` 模块的最佳特性到一个模块中，这使得使用起来很方便。
+
+回顾一下，这是我们在本节中介绍的功能表:
+
+| 函数                               | 描述                                                       |
+| ---------------------------------- | ---------------------------------------------------------- |
+| startswith()                       | 测试一个字符串是否以一个特定的模式开始，返回 True 或 False |
+| endswith()                         | 测试一个字符串是否以一个特定的模式结束，返回 True 或 False |
+| fnmatch.fnmatch(filename, pattern) | 测试文件名是否匹配这个模式，返回 True 或 False             |
+| glob.glob()                        | 返回一个匹配该模式的文件名列表                             |
+| pathlib.Path.glob()                | 返回一个匹配该模式的生成器对象                             |
+
+***
+
+# 遍历目录和处理文件
+
+一个常见的编程任务是遍历目录树并处理目录树中的文件。让我们来探讨一下如何使用内置的Python函数 `os.walk()` 来实现这一功能。`os.walk()` 用于通过从上到下或从下到上遍历树来生成目录树中的文件名。处于本节的目的，我们想操作以下的目录树:
+
+```shell
+├── folder_1
+│   ├── file1.py
+│   ├── file2.py
+│   └── file3.py
+├── folder_2
+│   ├── file4.py
+│   ├── file5.py
+│   └── file6.py
+├── test1.txt
+└── test2.txt
+```
+
+以下是一个示例，演示如何使用 `os.walk()` 列出目录树中的所有文件和目录。
+
+`os.walk()` 默认是从上到下遍历目录:
+
+ ```python
+import os
+for dirpath, dirname, files in os.walk('.'):
+    print(f'Found directory: {dirpath}')
+    for file_name in files:
+        print(file_name)
+ ```
+
+`os.walk()` 在每个循环中返回三个值：
+
+1. 当前文件夹的名称
+2. 当前文件夹中子文件夹的列表
+3. 当前文件夹中文件的列表
+
+在每次迭代中，会打印出它找到的子目录和文件的名称：
+
+```python
+Found directory: .
+test1.txt
+test2.txt
+Found directory: ./folder_1
+file1.py
+file3.py
+file2.py
+Found directory: ./folder_2
+file4.py
+file5.py
+file6.py
+```
+
+要以自下而上的方式遍历目录树，则将 `topdown=False` 关键字参数传递给 `os.walk()` ：
+
+```python
+for dirpath, dirnames, files in os.walk('.', topdown=False):
+    print(f'Found directory: {dirpath}')
+    for file_name in files:
+        print(file_name)
+```
+
+传递 `topdown=False` 参数将使 `os.walk()` 首先打印出它在子目录中找到的文件:
+
+```shell
+Found directory: ./folder_1
+file1.py
+file3.py
+file2.py
+Found directory: ./folder_2
+file4.py
+file5.py
+file6.py
+Found directory: .
+test1.txt
+test2.txt
+```
+
+如你看见的，程序在列出根目录的内容之前列出子目录的内容。 这在在你想要递归删除文件和目录的情况下非常有用。 你将在以下部分中学习如何执行此操作。 默认情况下，`os.walk` 不会访问通过软连接创建的目录。 可以通过使用 `followlinks = True` 参数来覆盖默认行为。
+
+***
+
+# 创建临时文件和目录
+
+Python提供了 `tempfile` 模块来便捷的创建临时文件和目录。
+
+`tempfile` 可以在你程序运行时打开并存储临时的数据在文件或目录中。 `tempfile` 会在你程序停止运行后删除这些临时文件。
+
+现在，让我们看看如何创建一个临时文件:
+
+```python
+from tempfile import  TemporaryFile
+
+# 创建一个临时文件并为其写入一些数据
+fp = TemporaryFile('w+t')
+fp.write('Hello World!')
+# 回到开始，从文件中读取数据
+fp.seek(0)
+data = fp.read()
+print(data)
+# 关闭文件，之后他将会被删除
+fp.close()
+```
+
+第一步是从 `tempfile` 模块导入 `TemporaryFile` 。 接下来，使用 `TemporaryFile() ` 方法并传入一个你想打开这个文件的模式来创建一个类似于对象的文件。这将创建并打开一个可用作临时存储区域的文件。
+
+在上面的示例中，模式为 `w + t`，这使得 `tempfile` 在写入模式下创建临时文本文件。 没有必要为临时文件提供文件名，因为在脚本运行完毕后它将被销毁。
+
+写入文件后，您可以从中读取并在完成处理后将其关闭。 一旦文件关闭后，将从文件系统中删除。 如果需要命名使用 `tempfile` 生成的临时文件，请使用 `tempfile.NamedTemporaryFile()` 。
+
+使用 `tempfile` 创建的临时文件和目录存储在用于存储临时文件的特殊系统目录中。 Python将在目录列表搜索用户可以在其中创建文件的目录。
+
+在Windows上，目录按顺序为 `C:\TEMP`，`C:\TMP`，`\TEMP` 和 `\TMP`。 在所有其他平台上，目录按顺序为 `/ tmp`，`/var/tmp` 和 `/usr/tmp` 。 如果上述目录中都没有，`tempfile` 将在当前目录中存储临时文件和目录。
+
+`.TemporaryFile()` 也是一个上下文管理器，因此它可以与with语句一起使用。 使用上下文管理器会在读取文件后自动关闭和删除文件：
+
+```python
+with TemporaryFile('w+t') as fp:
+    fp.write('Hello universe!')
+    fp.seek(0)
+    fp.read()
+# 临时文件现在已经被关闭和删除
+```
+
+这将创建一个临时文件并从中读取数据。 一旦读取文件的内容，就会关闭临时文件并从文件系统中删除。
+
+`tempfile` 也可用于创建临时目录。 让我们看一下如何使用 `tempfile.TemporaryDirectory()`来做到这一点：
+
+```python
+import tempfile
+import os
+
+tmp = ''
+with tempfile.TemporaryDirectory() as tmpdir:
+    print('Created temporary directory ', tmpdir)
+    tmp = tmpdir
+    print(os.path.exists(tmpdir))
+
+print(tmp)
+print(os.path.exists(tmp))
+```
+
+调用 `tempfile.TemporaryDirectory()` 会在文件系统中创建一个临时目录，并返回一个表示该目录的对象。 在上面的示例中，使用上下文管理器创建目录，目录的名称存储在 `tmpdir` 变量中。 第三行打印出临时目录的名称，`os.path.exists(tmpdir)` 来确认目录是否实际在文件系统中创建。
+
+在上下文管理器退出上下文后，临时目录将被删除，并且对 `os.path.exists(tmpdir)`的调用将返回False，这意味着该目录已成功删除。
+
+***
+
+# 删除文件和目录
+
