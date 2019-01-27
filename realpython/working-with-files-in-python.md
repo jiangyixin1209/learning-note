@@ -840,3 +840,71 @@ print(os.path.exists(tmp))
 
 # 删除文件和目录
 
+您可以使用 `os`，`shutil` 和 `pathlib` 模块中的方法删除单个文件，目录和整个目录树。 以下将介绍如何删除你不再需要的文件和目录。
+
+## Python中删除文件
+
+要删除单个文件，请使用 `pathlib.Path.unlink()`，`os.remove()` 或 `os.unlink()`。
+
+`os.remove()` 和 `os.unlink()` 在语义上是相同的。 要使用 `os.remove()`删除文件，请执行以下操作：
+
+```python
+import os
+
+data_file = 'C:\\Users\\vuyisile\\Desktop\\Test\\data.txt'
+os.remove(data_file)
+```
+
+使用 `os.unlink()` 删除文件与使用 `os.remove()` 的方式类似：
+
+```python
+import os
+
+data_file = 'C:\\Users\\vuyisile\\Desktop\\Test\\data.txt'
+os.unlink(data_file)
+```
+
+在文件上调用 `.unlink()` 或 `.remove()` 会从文件系统中删除该文件。 如果传递给它们的路径指向目录而不是文件，这两个函数将抛出 `OSError` 。 为避免这种情况，可以检查你要删除的内容是否是文件，并在确认是文件时执行删除操作，或者可以使用异常处理来处理 `OSError` ：
+
+```python
+import os
+
+data_file = 'home/data.txt'
+# 如果类型是文件则进行删除
+if os.path.is_file(data_file):
+    os.remove(data_file)
+else:
+    print(f'Error: {data_file} not a valid filename')
+```
+
+`os.path.is_file()` 检查 `data_file` 是否实际上是一个文件。 如果是，则通过调用 `os.remove()` 删除它。 如果 `data_file`  指向文件夹，则会向控制台输出错误消息。
+
+以下示例说明如何在删除文件时使用异常处理来处理错误：
+
+```python
+import os
+
+data_file = 'home/data.txt'
+# 使用异常处理
+try:
+    os.remove(data_file)
+except OSError as e:
+    print(f'Error: {data_file} : {e.strerror}')
+```
+
+上面的代码尝试在检查其类型之前先删除该文件。 如果 `data_file` 实际上不是文件，则抛出的 `OSError` 将在except子句中处理，并向控制台输出错误消息。 打印出的错误消息使用 [Python f-strings ](https://realpython.com/python-f-strings/)格式化。
+
+最后，你还可以使用 `pathlib.Path.unlink()` 删除文件：
+
+```python
+from pathlib import Path
+
+data_file = Path('home/data.txt')
+try:
+    data_file.unlink()
+except IsADirectoryError as e:
+    print(f'Error: {data_file} : {e.strerror}')
+```
+
+这将创建一个名为 `data_file` 的 `Path` 对象，该对象指向一个文件。 在 `data_file` 上调用.unlink（）将删除 `home / data.txt` 。 如果 `data_file` 指向目录，则引发 `IsADirectoryError` 。 值得注意的是，上面的Python程序和运行它的用户具有相同的权限。 如果用户没有删除文件的权限，则会引发 `PermissionError` 。
+
