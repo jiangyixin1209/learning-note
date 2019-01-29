@@ -908,3 +908,87 @@ except IsADirectoryError as e:
 
 这将创建一个名为 `data_file` 的 `Path` 对象，该对象指向一个文件。 在 `data_file` 上调用.unlink（）将删除 `home / data.txt` 。 如果 `data_file` 指向目录，则引发 `IsADirectoryError` 。 值得注意的是，上面的Python程序和运行它的用户具有相同的权限。 如果用户没有删除文件的权限，则会引发 `PermissionError` 。
 
+## 删除目录
+
+标准库提供了一下函数来删除目录:
+
+* os.rmdir()
+* pathlib.Path.rmdir()
+* shutil.rmtree()
+
+要删除单个目录或文件夹可以使用 `os.rmdir()` 或 `pathlib.Path.rmdir()` 。这两个函数只在你删除空目录的时候有效。如果目录不为空，则会抛出 `OSError` 。下面演示如何删除一个文件夹:
+
+```python
+import os
+
+trash_dir = 'my_documents/bad_dir'
+
+try:
+    os.rmdir(trash_dir)
+except OSError as e:
+    print(f'Error: {trash_dir} : {e.strerror}')
+```
+
+现在，`trash_dir` 已经通过 `os.rmdir()` 被删除了。如果目录不为空，则会在屏幕上打印错误信息:
+
+```shell
+Traceback (most recent call last):
+  File '<stdin>', line 1, in <module>
+OSError: [Errno 39] Directory not empty: 'my_documents/bad_dir'
+```
+
+同样，你也可使用 `pathlib` 来删除目录:
+
+```python
+from pathlib import Path
+
+trash_dir = Path('my_documents/bad_dir')
+
+try:
+    trash_dir.rmdir()
+except OSError as e:
+    print(f'Error: {trash_dir} : {e.strerror}')
+```
+
+这里创建了一个 `Path` 对象指向要被删除的目录。如果目录为空，调用 `Path` 对象的  `.rmdir()` 方法删除它。
+
+## 删除完整的目录树
+
+要删除非空目录和完整的目录树，Python提供了 `shutil.rmtree()` :
+
+```python
+import shutil
+
+trash_dir = 'my_documents/bad_dir'
+
+try:
+    shutil.rmtree(trash_dir)
+except OSError as e:
+    print(f'Error: {trash_dir} : {e.strerror}')
+```
+
+当调用 `shutil.rmtree()` 时，`trash_dir` 中的所有内容都将被删除。 在某些情况下，你可能希望以递归方式删除空文件夹。 你可以使用上面讨论的方法之一结合 `os.walk()` 来完成此操作:
+
+```python
+import os
+
+for dirpath, dirnames, files in os.walk('.', topdown=False):
+    try:
+        os.rmdir(dirpath)
+    except OSError as ex:
+        pass
+```
+
+这将遍历目录树并尝试删除它找到的每个目录。 如果目录不为空，则引发OSError并跳过该目录。 下表列出了本节中涉及的功能：
+
+| 函数                  | 描述                                 |
+| --------------------- | ------------------------------------ |
+| os.remove()           | 删除单个文件，不能删除目录           |
+| os.unlink()           | 和os.remove()一样，职能删除单个文件  |
+| pathlib.Path.unlink() | 删除单个文件，不能删除目录           |
+| os.rmdir()            | 删除一个空目录                       |
+| pathlib.Path.rmdir()  | 删除一个空目录                       |
+| shutil.rmtree()       | 删除完整的目录树，可用于删除非空目录 |
+
+***
+
