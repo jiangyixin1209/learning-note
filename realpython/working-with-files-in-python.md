@@ -992,3 +992,202 @@ for dirpath, dirnames, files in os.walk('.', topdown=False):
 
 ***
 
+# 复制、移动和重命名文件和目录
+
+Python附带了 `shutil` 模块。 `shutil` 是shell实用程序的缩写。 它为文件提供了许多高级操作，来支持文件和目录的复制，归档和删除。 在本节中，你将学习如何移动和复制文件和目录。
+
+## 复制文件
+
+`shutil` 提供了一些复制文件的函数。 最常用的函数是 `shutil.copy()`  和 `shutil.copy2()` 。 使用`shutil.copy()` 将文件从一个位置复制到另一个位置，请执行以下操作：
+
+```python
+import shutil
+
+src = 'path/to/file.txt'
+dst = 'path/to/dest_dir'
+shutil.copy(src, dst)
+```
+
+`shutil.copy()` 与基于UNIX的系统中的 `cp` 命令相当。 `shutil.copy(src，dst)` 会将文件 `src` 复制到 `dst` 中指定的位置。 如果 `dst` 是文件，则该文件的内容将替换为 `src` 的内容。 如果 `dst` 是目录，则 `src` 将被复制到该目录中。 `shutil.copy()` 仅复制文件的内容和文件的权限。 其他元数据（如文件的创建和修改时间）不会保留。
+
+要在复制时保留所有文件元数据，请使用 `shutil.copy2()` ：
+
+```python
+import shutil
+
+src = 'path/to/file.txt'
+dst = 'path/to/dest_dir'
+shutil.copy2(src, dst)
+```
+
+使用 `.copy2()` 保留有关文件的详细信息，例如上次访问时间，权限位，上次修改时间和标志。
+
+## 复制目录
+
+虽然 `shutil.copy()` 只复制单个文件，但 `shutil.copytree()` 将复制整个目录及其中包含的所有内容。 `shutil.copytree(src，dest)` 接收两个参数：源目录和将文件和文件夹复制到的目标目录。
+
+以下是如何将一个文件夹的内容复制到其他位置的示例：
+
+```python
+import shutil
+dst = shutil.copytree('data_1', 'data1_backup')
+print(dst)  # data1_backup
+```
+
+在此示例中，`.copytree()` 将 `data_1` 的内容复制到新位置 `data1_backup` 并返回目标目录。 目标目录不能是已存在的。 它将被创建而不带有其父目录。 `shutil.copytree()` 是备份文件的一个好方法。
+
+## 移动文件和目录
+
+要将文件或目录移动到其他位置，请使用 `shutil.move(src，dst)` 。
+
+`src` 是要移动的文件或目录，`dst` 是目标：
+
+```python
+import shutil
+dst = shutil.move('dir_1/', 'backup/')
+print(dst)  # 'backup'
+```
+
+如果 `backup/` 存在，则 `shutil.move('dir_1/'，'backup/')` 将 `dir_1/` 移动到 `backup/` 。 如果 `backup/` 不存在，则 `dir_1/` 将重命名为 `backup` 。
+
+## 重命名文件和目录
+
+Python包含用于重命名文件和目录的 `os.rename(src，dst)`：
+
+```python
+import os
+os.rename('first.zip', 'first_01.zip')
+```
+
+上面的行将 `first.zip` 重命名为 `first_01.zip` 。 如果目标路径指向目录，则会抛出 `OSError` 。
+
+重命名文件或目录的另一种方法是使用 `pathlib` 模块中的 `rename（）`：
+
+```python
+from pathlib import Path
+data_file = Path('data_01.txt')
+data_file.rename('data.txt')
+```
+
+要使用 `pathlib` 重命名文件，首先要创建一个 `pathlib.Path()` 对象，该对象包含要替换的文件的路径。 下一步是在路径对象上调用 `rename()`  并传入你要重命名的文件或目录的新名称。
+
+***
+
+# 归档
+
+归档是将多个文件打包成一个文件的便捷方式。 两种最常见的存档类型是ZIP和TAR。 你编写的Python程序可以创建压缩文件，读取压缩文件和从压缩文件中提取数据。 你将在本节中学习如何读取和写入两种压缩格式。
+
+## 读取ZIP文件
+
+`zipfile` 模块是一个底层模块，是Python标准库的一部分。 `zipfile` 具有可以轻松打开和提取ZIP文件的函数。 要读取ZIP文件的内容，首先要做的是创建一个 `ZipFile` 对象。`ZipFile` 对象类似于使用 `open()` 创建的文件对象。`ZipFile` 也是一个上下文管理器，因此支持with语句：
+
+```python
+import zipfile
+
+with zipfile.ZipFile('data.zip', 'r') as zipobj:
+    pass
+```
+
+这里创建一个 `ZipFile` 对象，传入ZIP文件的名称并以读取模式下打开。 打开ZIP文件后，可以通过 `zipfile` 模块提供的函数访问有关压缩文件的信息。 上面示例中的 `data.zip` 存档是从名为 `data` 的目录创建的，该目录包含总共5个文件和1个子目录：
+
+```shell
+.
+|
+├── sub_dir/
+|   ├── bar.py
+|   └── foo.py
+|
+├── file1.py
+├── file2.py
+└── file3.py
+```
+
+要获取压缩文件中的文件列表，请在 `ZipFile` 对象上调用 `namelist()` ：
+
+```python
+import zipfile
+
+with zipfile.ZipFile('data.zip', 'r') as zipobj:
+    zipobj.namelist()
+```
+
+这会生成一个文件列表:
+
+```shell
+['file1.py', 'file2.py', 'file3.py', 'sub_dir/', 'sub_dir/bar.py', 'sub_dir/foo.py']
+```
+
+`.namelist()` 返回压缩文件中文件和目录的名称列表。要检索有关压缩文件中文件的信息，使用 `.getinfo()` ：
+
+```python
+import zipfile
+
+with zipfile.ZipFile('data.zip', 'r') as zipobj:
+    bar_info = zipobj.getinfo('sub_dir/bar.py')
+    print(bar_info.file_size)
+```
+
+这将输出:
+
+```shell
+15277
+```
+
+`.getinfo()` 返回一个 `ZipInfo` 对象，该对象存储有关压缩文件的单个成员的信息。 要获取有关压缩文件中文件的信息，请将其路径作为参数传递给 `.getinfo()` 。 使用 `getinfo()` ，你可以检索有关压缩文件成员的信息，例如上次修改文件的日期，压缩大小及其完整文件名。 访问 `.file_size` 将以字节为单位检索文件的原始大小。
+
+以下示例说明如何在Python REPL中检索有关已压缩文件的更多详细信息。 假设已导入 `zipfile` 模块，`bar_info` 与在前面的示例中创建的对象相同：
+
+```python
+>>> bar_info.date_time
+(2018, 10, 7, 23, 30, 10)
+>>> bar_info.compress_size
+2856
+>>> bar_info.filename
+'sub_dir/bar.py'
+```
+
+`bar_info` 包含有关 `bar.py` 的详细信息，例如压缩的大小及其完整路径。
+
+第一行显示了如何检索文件的上次修改日期。 下一行显示了如何在压缩后获取文件的大小。 最后一行显示了压缩文件中 `bar.py` 的完整路径。
+
+`ZipFile` 支持上下文管理器协议，这就是你可以将它与with语句一起使用的原因。 操作完成后会自动关闭 `ZipFile` 对象。 尝试从已关闭的 `ZipFile` 对象中打开或提取文件将导致错误。
+
+## 提取ZIP文件
+
+`zipfile` 模块允许你通过 `.extract()` 和 `.extractall()` 从ZIP文件中提取一个或多个文件。
+
+默认情况下，这些方法将文件解压缩到当前目录。 它们都采用可选的路径参数，允许指定要将文件提取到的其他指定目录。 如果该目录不存在，则会自动创建该目录。 要从压缩文件中提取文件，请执行以下操作：
+
+```python
+>>> import zipfile
+>>> import os
+
+>>> os.listdir('.')
+['data.zip']
+
+>>> data_zip = zipfile.ZipFile('data.zip', 'r')
+
+>>> # 提取单个文件到当前目录
+>>> data_zip.extract('file1.py')
+'/home/test/dir1/zip_extract/file1.py'
+
+>>> os.listdir('.')
+['file1.py', 'data.zip']
+
+>>> # 提所有文件到指定目录
+>>> data_zip.extractall(path='extract_dir/')
+
+>>> os.listdir('.')
+['file1.py', 'extract_dir', 'data.zip']
+
+>>> os.listdir('extract_dir')
+['file1.py', 'file3.py', 'file2.py', 'sub_dir']
+
+>>> data_zip.close()
+```
+
+第三行代码是对 `os.listdir()`  的调用，它显示当前目录只有一个文件 `data.zip` 。
+
+接下来，以读取模式下打开 `data.zip` 并调用 `.extract()` 从中提取 `file1.py` 。 `.extract()` 返回解压缩文件的完整文件路径。 由于没有指定路径，`.extract()` 会将 `file1.py` 提取到当前目录。
+
+下一行打印一个目录列表，显示当前目录现在包括除原始压缩文件之外的解压缩文件。 之后显示了如何将整个存档解压缩到指定目录中。`.extractall()` 创建 `extract_dir` 并将 `data.zip` 的内容提取到其中。 最后一行关闭ZIP压缩文件。
