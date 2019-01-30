@@ -1,5 +1,7 @@
 [TOC]
 
+> 本文为译文，[原文链接](https://realpython.com/working-with-files-in-python) 
+
 Python中有几个内置模块和方法来处理文件。这些方法被分割到例如`os`,  `os.path` , `shutil`  和 `pathlib` 等等几个模块中。文章将列举Python中对文件最常用的操作和方法。
 
 在这篇文章中，你将学习如何：
