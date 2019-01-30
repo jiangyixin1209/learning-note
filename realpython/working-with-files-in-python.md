@@ -1075,7 +1075,7 @@ data_file.rename('data.txt')
 
 # 归档
 
-归档是将多个文件打包成一个文件的便捷方式。 两种最常见的存档类型是ZIP和TAR。 你编写的Python程序可以创建压缩文件，读取压缩文件和从压缩文件中提取数据。 你将在本节中学习如何读取和写入两种压缩格式。
+归档是将多个文件打包成一个文件的便捷方式。 两种最常见的存档类型是ZIP和TAR。 你编写的Python程序可以创建存档文件，读取存档文件和从存档文件中提取数据。 你将在本节中学习如何读取和写入两种压缩格式。
 
 ## 读取ZIP文件
 
@@ -1088,7 +1088,7 @@ with zipfile.ZipFile('data.zip', 'r') as zipobj:
     pass
 ```
 
-这里创建一个 `ZipFile` 对象，传入ZIP文件的名称并以读取模式下打开。 打开ZIP文件后，可以通过 `zipfile` 模块提供的函数访问有关压缩文件的信息。 上面示例中的 `data.zip` 存档是从名为 `data` 的目录创建的，该目录包含总共5个文件和1个子目录：
+这里创建一个 `ZipFile` 对象，传入ZIP文件的名称并以读取模式下打开。 打开ZIP文件后，可以通过 `zipfile` 模块提供的函数访问有关存档文件的信息。 上面示例中的 `data.zip` 存档是从名为 `data` 的目录创建的，该目录包含总共5个文件和1个子目录：
 
 ```shell
 .
@@ -1102,7 +1102,7 @@ with zipfile.ZipFile('data.zip', 'r') as zipobj:
 └── file3.py
 ```
 
-要获取压缩文件中的文件列表，请在 `ZipFile` 对象上调用 `namelist()` ：
+要获取存档文件中的文件列表，请在 `ZipFile` 对象上调用 `namelist()` ：
 
 ```python
 import zipfile
@@ -1117,7 +1117,7 @@ with zipfile.ZipFile('data.zip', 'r') as zipobj:
 ['file1.py', 'file2.py', 'file3.py', 'sub_dir/', 'sub_dir/bar.py', 'sub_dir/foo.py']
 ```
 
-`.namelist()` 返回压缩文件中文件和目录的名称列表。要检索有关压缩文件中文件的信息，使用 `.getinfo()` ：
+`.namelist()` 返回存档文件中文件和目录的名称列表。要检索有关存档文件中文件的信息，使用 `.getinfo()` ：
 
 ```python
 import zipfile
@@ -1133,9 +1133,9 @@ with zipfile.ZipFile('data.zip', 'r') as zipobj:
 15277
 ```
 
-`.getinfo()` 返回一个 `ZipInfo` 对象，该对象存储有关压缩文件的单个成员的信息。 要获取有关压缩文件中文件的信息，请将其路径作为参数传递给 `.getinfo()` 。 使用 `getinfo()` ，你可以检索有关压缩文件成员的信息，例如上次修改文件的日期，压缩大小及其完整文件名。 访问 `.file_size` 将以字节为单位检索文件的原始大小。
+`.getinfo()` 返回一个 `ZipInfo` 对象，该对象存储有关存档文件的单个成员的信息。 要获取有关存档文件中文件的信息，请将其路径作为参数传递给 `.getinfo()` 。 使用 `getinfo()` ，你可以检索有关存档文件成员的信息，例如上次修改文件的日期，压缩大小及其完整文件名。 访问 `.file_size` 将以字节为单位检索文件的原始大小。
 
-以下示例说明如何在Python REPL中检索有关已压缩文件的更多详细信息。 假设已导入 `zipfile` 模块，`bar_info` 与在前面的示例中创建的对象相同：
+以下示例说明如何在Python REPL中检索有关已归档文件的更多详细信息。 假设已导入 `zipfile` 模块，`bar_info` 与在前面的示例中创建的对象相同：
 
 ```python
 >>> bar_info.date_time
@@ -1148,7 +1148,7 @@ with zipfile.ZipFile('data.zip', 'r') as zipobj:
 
 `bar_info` 包含有关 `bar.py` 的详细信息，例如压缩的大小及其完整路径。
 
-第一行显示了如何检索文件的上次修改日期。 下一行显示了如何在压缩后获取文件的大小。 最后一行显示了压缩文件中 `bar.py` 的完整路径。
+第一行显示了如何检索文件的上次修改日期。 下一行显示了如何在归档后获取文件的大小。 最后一行显示了存档文件中 `bar.py` 的完整路径。
 
 `ZipFile` 支持上下文管理器协议，这就是你可以将它与with语句一起使用的原因。 操作完成后会自动关闭 `ZipFile` 对象。 尝试从已关闭的 `ZipFile` 对象中打开或提取文件将导致错误。
 
@@ -1156,7 +1156,7 @@ with zipfile.ZipFile('data.zip', 'r') as zipobj:
 
 `zipfile` 模块允许你通过 `.extract()` 和 `.extractall()` 从ZIP文件中提取一个或多个文件。
 
-默认情况下，这些方法将文件解压缩到当前目录。 它们都采用可选的路径参数，允许指定要将文件提取到的其他指定目录。 如果该目录不存在，则会自动创建该目录。 要从压缩文件中提取文件，请执行以下操作：
+默认情况下，这些方法将文件提取到当前目录。 它们都采用可选的路径参数，允许指定要将文件提取到的其他指定目录。 如果该目录不存在，则会自动创建该目录。 要从压缩文件中提取文件，请执行以下操作：
 
 ```python
 >>> import zipfile
@@ -1188,6 +1188,330 @@ with zipfile.ZipFile('data.zip', 'r') as zipobj:
 
 第三行代码是对 `os.listdir()`  的调用，它显示当前目录只有一个文件 `data.zip` 。
 
-接下来，以读取模式下打开 `data.zip` 并调用 `.extract()` 从中提取 `file1.py` 。 `.extract()` 返回解压缩文件的完整文件路径。 由于没有指定路径，`.extract()` 会将 `file1.py` 提取到当前目录。
+接下来，以读取模式下打开 `data.zip` 并调用 `.extract()` 从中提取 `file1.py` 。 `.extract()` 返回提取文件的完整文件路径。 由于没有指定路径，`.extract()` 会将 `file1.py` 提取到当前目录。
 
-下一行打印一个目录列表，显示当前目录现在包括除原始压缩文件之外的解压缩文件。 之后显示了如何将整个存档解压缩到指定目录中。`.extractall()` 创建 `extract_dir` 并将 `data.zip` 的内容提取到其中。 最后一行关闭ZIP压缩文件。
+下一行打印一个目录列表，显示当前目录现在包括除原始存档文件之外的存档文件。 之后显示了如何将整个存档提取到指定目录中。`.extractall()` 创建 `extract_dir` 并将 `data.zip` 的内容提取到其中。 最后一行关闭ZIP存档文件。
+
+## 从加密的文档提取数据
+
+`zipfile` 支持提取受密码保护的ZIP。 要提取受密码保护的ZIP文件，请将密码作为参数传递给 `.extract()` 或`.extractall()` 方法：
+
+```python
+>>> import zipfile
+
+>>> with zipfile.ZipFile('secret.zip', 'r') as pwd_zip:
+...     # 从加密的文档提取数据
+...     pwd_zip.extractall(path='extract_dir', pwd='Quish3@o')
+```
+
+将以读取模式打开 `secret.zip` 存档。 密码提供给 `.extractall()` ，并且压缩文件内容被提取到 `extract_dir` 。 由于with语句，在完成提取后，存档文件会自动关闭。
+
+## 创建新的存档文件
+
+要创建新的ZIP存档，请以写入模式（w）打开 `ZipFile` 对象并添加要归档的文件：
+
+```python
+>>> import zipfile
+
+>>> file_list = ['file1.py', 'sub_dir/', 'sub_dir/bar.py', 'sub_dir/foo.py']
+>>> with zipfile.ZipFile('new.zip', 'w') as new_zip:
+...     for name in file_list:
+...         new_zip.write(name)
+```
+
+在该示例中，`new_zip` 以写入模式打开，`file_list` 中的每个文件都添加到存档文件中。 with语句结束后，将关闭 `new_zip` 。 以写入模式打开ZIP文件会删除压缩文件的内容并创建新存档文件。
+
+要将文件添加到现有的存档文件，请以追加模式打开 `ZipFile` 对象，然后添加文件：
+
+```python
+>>> with zipfile.ZipFile('new.zip', 'a') as new_zip:
+...     new_zip.write('data.txt')
+...     new_zip.write('latin.txt')
+```
+
+这里打开在上一个示例中以追加模式创建的 `new.zip` 存档。 在追加模式下打开 `ZipFile` 对象允许将新文件添加到ZIP文件而不删除其当前内容。 将文件添加到ZIP文件后，with语句将脱离上下文并关闭ZIP文件。
+
+## 打开TAR存档文件
+
+TAR文件是像ZIP等未压缩的文件存档。 它们可以使用 `gzip`，`bzip2` 和 `lzma` 压缩方法进行压缩。 `TarFile` 类允许读取和写入TAR存档。
+
+下面是从存档中读取：
+
+```python
+import tarfile
+
+with tarfile.open('example.tar', 'r') as tar_file:
+    print(tar_file.getnames())
+```
+
+`tarfile` 对象像大多数类似文件的对象一样打开。 它们有一个 `open()` 函数，它采用一种模式来确定文件的打开方式。
+
+使用“r”，“w”或“a”模式分别打开未压缩的TAR文件以进行读取，写入和追加。 要打开压缩的TAR文件，请将模式参数传递给 `tarfile.open()`，其格式为 `filemode [:compression]` 。 下表列出了可以打开TAR文件的可能模式：
+
+| 模式  | 行为                          |
+| ----- | ----------------------------- |
+| r     | 以无压缩的读取模式打开存档    |
+| r:gz  | 以gzip压缩的读取模式打开存档  |
+| r:bz2 | 以bzip2压缩的读取模式打开存档 |
+| w     | 以无压缩的写入模式打开存档    |
+| w:gz  | 以gzip压缩的写入模式打开存档  |
+| w:xz  | 以lzma压缩的写入模式打开存档  |
+| a     | 以无压缩的追加模式打开存档    |
+
+`.open()` 默认为'r'模式。 要读取未压缩的TAR文件并检索其中的文件名，请使用 `.getnames()` ：
+
+```python
+>>> import tarfile
+
+>>> tar = tarfile.open('example.tar', mode='r')
+>>> tar.getnames()
+['CONTRIBUTING.rst', 'README.md', 'app.py']
+```
+
+这以列表的方式返回存档中内容的名字。
+
+> 注意：为了向你展示如何使用不同的tarfile对象方法，示例中的TAR文件在交互式REPL会话中手动打开和关闭。
+>
+> 通过这种方式与TAR文件交互，你可以查看运行每个命令的输出。 通常，你可能希望使用上下文管理器来打开类似文件的对象。
+
+此外可以使用特殊属性访问存档中每个条目的元数据：
+
+```python
+>>> for entry in tar.getmembers():
+...     print(entry.name)
+...     print(' Modified:', time.ctime(entry.mtime))
+...     print(' Size    :', entry.size, 'bytes')
+...     print()
+CONTRIBUTING.rst
+ Modified: Sat Nov  1 09:09:51 2018
+ Size    : 402 bytes
+
+README.md
+ Modified: Sat Nov  3 07:29:40 2018
+ Size    : 5426 bytes
+
+app.py
+ Modified: Sat Nov  3 07:29:13 2018
+ Size    : 6218 bytes
+```
+
+在此示例中，循环遍历 `.getmembers()` 返回的文件列表，并打印出每个文件的属性。` .getmembers()` 返回的对象具有可以通过编程方式访问的属性，例如归档中每个文件的名称，大小和上次修改时间。 在读取或写入存档后，必须关闭它以释放系统资源。
+
+## 从TAR存档中提取文件
+
+在本节中，你将学习如何使用以下方法从TAR存档中提取文件：
+
+* `.extract()`
+* `.extractfile()`
+* `.extractall()`
+
+要从TAR存档中提取单个文件，请使用 `extract()` ，传入文件名：
+
+```python
+>>> tar.extract('README.md')
+>>> os.listdir('.')
+['README.md', 'example.tar']
+```
+
+`README.md` 文件从存档中提取到文件系统。 调用 `os.listdir()` 确认 `README.md` 文件已成功提取到当前目录中。 要从存档中解压缩或提取所有内容，请使用 `.extractall()` ：
+
+```python
+>>> tar.extractall(path="extracted/")
+```
+
+`.extractall()` 有一个可选的 `path` 参数来指定解压缩文件的去向。 这里，存档被提取到 `extracted` 目录中。 以下命令显示已成功提取存档：
+
+```shell
+$ ls
+example.tar  extracted  README.md
+
+$ tree
+.
+├── example.tar
+├── extracted
+|   ├── app.py
+|   ├── CONTRIBUTING.rst
+|   └── README.md
+└── README.md
+
+1 directory, 5 files
+
+$ ls extracted/
+app.py  CONTRIBUTING.rst  README.md
+```
+
+要提取文件对象以进行读取或写入，请使用 `.extractfile()` ，它接收 文件名或 `TarInfo` 对象作为参数。 `.extractfile()` 返回一个可以读取和使用的类文件对象：
+
+```python
+>>> f = tar.extractfile('app.py')
+>>> f.read()
+>>> tar.close()
+```
+
+打开的存档应在读取或写入后始终关闭。 要关闭存档，请在存档文件句柄上调用 `.close()` ，或在创建 `tarfile`对象时使用with语句，以便在完成后自动关闭存档。 这将释放系统资源，并将你对存档所做的任何更改写入文件系统。
+
+## 创建新的TAR存档
+
+创建新的TAR存档，你可以这样操作:
+
+```python
+>>> import tarfile
+
+>>> file_list = ['app.py', 'config.py', 'CONTRIBUTORS.md', 'tests.py']
+>>> with tarfile.open('packages.tar', mode='w') as tar:
+...     for file in file_list:
+...         tar.add(file)
+
+>>> # Read the contents of the newly created archive
+>>> with tarfile.open('package.tar', mode='r') as t:
+...     for member in t.getmembers():
+...         print(member.name)
+app.py
+config.py
+CONTRIBUTORS.md
+tests.py
+```
+
+首先，你要创建要添加到存档的文件列表，这样你就不必手动添加每个文件。
+
+下一行使用with光线文管理器在写入模式下打开名为 `packages.tar` 的新存档。 以写入模式（'w'）打开存档使你可以将新文件写入存档。 将删除存档中的所有现有文件，并创建新存档。
+
+创建并填充存档后，with上下文管理器会自动关闭它并将其保存到文件系统。 最后三行打开刚刚创建的存档，并打印出其中包含的文件的名称。
+
+要将新文件添加到现有存档，请以追加模式（'a'）打开存档：
+
+```python
+>>> with tarfile.open('package.tar', mode='a') as tar:
+...     tar.add('foo.bar')
+
+>>> with tarfile.open('package.tar', mode='r') as tar:
+...     for member in tar.getmembers():
+...         print(member.name)
+app.py
+config.py
+CONTRIBUTORS.md
+tests.py
+foo.bar
+```
+
+在追加模式下打开存档允许你向其添加新文件而不删除其中已存在的文件。
+
+## 使用压缩存档
+
+`tarfile` 可以读取和写入使用 `gzip`，`bzip2` 和 `lzma` 压缩的TAR存档文件。 要读取或写入压缩存档，请使用`tarfile.open()` ，为压缩类型传递适当的模式。
+
+例如，要读取或写入使用 `gzip` 压缩的TAR存档的数据，请分别使用 `'r:gz'` 或 `'w:gz'` 模式：
+
+```python
+>>> files = ['app.py', 'config.py', 'tests.py']
+>>> with tarfile.open('packages.tar.gz', mode='w:gz') as tar:
+...     tar.add('app.py')
+...     tar.add('config.py')
+...     tar.add('tests.py')
+
+>>> with tarfile.open('packages.tar.gz', mode='r:gz') as t:
+...     for member in t.getmembers():
+...         print(member.name)
+app.py
+config.py
+tests.py
+```
+
+`'w:gz'` 以写模式模式打开 `gzip` 压缩的存档，`'r:gz'` 以读模式打开 `gzip` 压缩的存档。 无法在追加模式下打开压缩存档。 要将文件添加到压缩存档，你必须创建新存档。
+
+***
+
+# 一个更简单的方式创建存档
+
+Python标准库还支持使用 `shutil` 模块中的高级方法创建TAR和ZIP存档。 `shutil` 中的归档实用工具允许你创建，读取和提取ZIP和TAR归档。 这些实用工具依赖于较底层的 `tarfile` 和 `zipfile` 模块。
+
+## 使用 **shutil.make_archive()** 创建存档
+
+`shutil.make_archive()` 至少接收两个参数：归档的名称和归档格式。
+
+默认情况下，它将当前目录中的所有文件压缩为 `format` 参数中指定的归档格式。 你可以传入可选的 `root_dir` 参数来压缩不同目录中的文件。 `.make_archive()` 支持 `zip` ，`tar` ，`bztar` 和 `gztar` 存档格式。
+
+以下是使用 `shutil` 创建TAR存档的方法：
+
+```python
+import shutil
+
+# shutil.make_archive(base_name, format, root_dir)
+shutil.make_archive('data/backup', 'tar', 'data/')
+```
+
+这将复制 `data /` 中的所有内容，并在文件系统中创建名为 `backup.tar` 的存档并返回其名称。 要提取存档，请调用 `.unpack_archive()` ：
+
+```python
+shutil.unpack_archive('backup.tar', 'extract_dir/')
+```
+
+调用 `.unpack_archive()` 并传入存档名称和目标目录，将 `backup.tar` 的内容提取到 `extract_dir/` 中。 ZIP存档可以以相同的方式创建和提取。
+
+***
+
+# 读取多个文件
+
+Python支持通过 `fileinput` 模块从多个输入流或文件列表中读取数据。 此模块允许你快速轻松地循环遍历一个或多个文本文件的内容。 以下是使用 `fileinput` 的典型方法：
+
+```python
+import fileinput
+for line in fileinput.input()
+    process(line)
+```
+
+`fileinput` 默认从传递给 `sys.argv` 的命令行参数获取其输入。
+
+## 使用 **fileinput** 循环遍历多个文件
+
+让我们使用 `fileinput` 构建一个普通的UNIX实用程序 `cat` 的原始版本。 `cat` 实用工具按顺序读取文件，将它们写入标准输出。 当在命令行参数中给出多个文件时，`cat` 将连接文本文件并在终端中显示结果：
+
+```python
+# File: fileinput-example.py
+import fileinput
+import sys
+
+files = fileinput.input()
+for line in files:
+    if fileinput.isfirstline():
+        print(f'\n--- Reading {fileinput.filename()} ---')
+    print(' -> ' + line, end='')
+print()
+```
+
+在当前目录中有两个文本文件，运行此命令会产生以下输出：
+
+```shell
+$ python3 fileinput-example.py bacon.txt cupcake.txt
+--- Reading bacon.txt ---
+ -> Spicy jalapeno bacon ipsum dolor amet in in aute est qui enim aliquip,
+ -> irure cillum drumstick elit.
+ -> Doner jowl shank ea exercitation landjaeger incididunt ut porchetta.
+ -> Tenderloin bacon aliquip cupidatat chicken chuck quis anim et swine.
+ -> Tri-tip doner kevin cillum ham veniam cow hamburger.
+ -> Turkey pork loin cupidatat filet mignon capicola brisket cupim ad in.
+ -> Ball tip dolor do magna laboris nisi pancetta nostrud doner.
+
+--- Reading cupcake.txt ---
+ -> Cupcake ipsum dolor sit amet candy I love cheesecake fruitcake.
+ -> Topping muffin cotton candy.
+ -> Gummies macaroon jujubes jelly beans marzipan.
+```
+
+`fileinput` 允许你检索有关每一行的更多信息，例如它是否是第一行(.isfirstline())，行号(.lineno())和文件名(.filename())。 你可以在 [这里](https://docs.python.org/3/library/fileinput.html) 读更多关于它的内容。
+
+***
+
+# 总结
+
+你现在知道如何使用Python对文件和文件组执行最常见的操作。 你已经了解使用不同的内置模块来读取，查找和操作文件。
+
+你现在可以用Python来实现:
+
+* 获取目录内容和文件属性
+* 创建目录和目录树
+* 使用匹配模式匹配文件名
+* 创建临时文件和目录
+* 移动，重命名，复制和删除文件或目录
+* 从不同类型的存档文件中读取和提取数据
+* 使用 *fileinput* 同时读取多个文件
