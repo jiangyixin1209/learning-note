@@ -1,5 +1,3 @@
-[TOC]
-
 > 本文为译文，[原文链接](https://realpython.com/working-with-files-in-python) 
 
 Python中有几个内置模块和方法来处理文件。这些方法被分割到例如`os`,  `os.path` , `shutil`  和 `pathlib` 等等几个模块中。文章将列举Python中对文件最常用的操作和方法。
@@ -1466,7 +1464,7 @@ for line in fileinput.input()
 
 ## 使用 **fileinput** 循环遍历多个文件
 
-让我们使用 `fileinput` 构建一个普通的UNIX实用程序 `cat` 的原始版本。 `cat` 实用工具按顺序读取文件，将它们写入标准输出。 当在命令行参数中给出多个文件时，`cat` 将连接文本文件并在终端中显示结果：
+让我们使用 `fileinput` 构建一个普通的UNIX工具 `cat` 的原始版本。 `cat` 工具按顺序读取文件，将它们写入标准输出。 当在命令行参数中给出多个文件时，`cat` 将连接文本文件并在终端中显示结果：
 
 ```python
 # File: fileinput-example.py
