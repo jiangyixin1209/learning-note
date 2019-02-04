@@ -1,4 +1,4 @@
-> 本文为译文，[原文链接](https://realpython.com/working-with-files-in-python) 
+> 本文为译文，原文链接 [working-with-files-in-python](https://realpython.com/working-with-files-in-python) 
 
 Python中有几个内置模块和方法来处理文件。这些方法被分割到例如`os`,  `os.path` , `shutil`  和 `pathlib` 等等几个模块中。文章将列举Python中对文件最常用的操作和方法。
 
@@ -1521,5 +1521,4 @@ $ python3 fileinput-example.py bacon.txt cupcake.txt
 [![qrcode_for_gh_aeefa52af384_258.jpg](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)
 
 
-  关注公众号，学习更多国外精品技术文章。
-
+  关注公众号 <代码与艺术>，学习更多国外精品技术文章。
