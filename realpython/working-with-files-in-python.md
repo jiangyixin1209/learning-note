@@ -1515,3 +1515,11 @@ $ python3 fileinput-example.py bacon.txt cupcake.txt
 * 移动，重命名，复制和删除文件或目录
 * 从不同类型的存档文件中读取和提取数据
 * 使用 *fileinput* 同时读取多个文件
+
+
+
+[![qrcode_for_gh_aeefa52af384_258.jpg](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)
+
+
+  关注公众号，学习更多国外精品技术文章。
+
