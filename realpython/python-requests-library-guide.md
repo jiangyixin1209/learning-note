@@ -9,7 +9,7 @@
 * 使用常见的HTTP方法发送请求
 * 定制你的请求头和数据，使用查询字符串和消息体
 * 检查你的请求和响应的数据
-* 进行身份验证的请求
+* 发送带身份验证的请求
 * 配置你的请求来避免阻塞或减慢你的应用程序
 
 虽然我试图包含尽可能多的信息来理解本文中包含的功能和示例，但阅读此文需要对HTTP有基础的了解。
@@ -46,7 +46,7 @@ import requests
 
 最常见的HTTP方法之一是GET。 GET方法表示你正在尝试从指定资源获取或检索数据。 要发送GET请求，请调用 `requests.get()` 。
 
-你可以通过使用 `get()` 请求下面的URL来向GitHub的 [Root REST API](https://developer.github.com/v3/#root-endpoint) 发出GET请求：
+你可以通过下面方式来向GitHub的 [Root REST API](https://developer.github.com/v3/#root-endpoint) 发出GET请求：
 
 ```shell
 >>> requests.get('https://api.github.com')
