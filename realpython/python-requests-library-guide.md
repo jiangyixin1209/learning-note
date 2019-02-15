@@ -59,6 +59,29 @@ import requests
 
 # 响应
 
+`Response` 是检查请求结果的强有力的对象。 让我们再次发出相同的请求，但这次将返回值存储在一个变量中，以便你可以仔细查看其属性和方法：
+
+```shell
+>>> response = requests.get('https://api.github.com')
+```
+
+在此示例中，你捕获了 `get()` 的返回值，该值是 `Response` 的实例，并将其存储在名为 `response` 的变量中。 你现在可以使用 `response` 来查看有关GET请求结果的全部信息。
+
+## 状态码
+
+您可以从 `Response` 获取的第一部分信息是状态码。 状态码会展示你请求的状态。
+
+例如，`200 OK` 状态表示你的请求成功，而 `404 NOT FOUND` 状态表示找不到你要查找的资源。 还有许多[其它的状态码](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) ，可以为你提供关于你的请求所发生的具体情况。
+
+通过访问 ``.status_code`，你可以看到服务器返回的状态码：
+
+```shell
+>>> response.status_code
+200
+```
+
+
+
 ***
 
 # 查询字符串参数
