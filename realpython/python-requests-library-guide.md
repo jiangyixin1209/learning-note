@@ -42,6 +42,19 @@ import requests
 
 # GET 请求
 
+[HTTP方法](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods)（如GET和POST）决定当发出HTTP请求时尝试执行的操作。 除了GET和POST之外，还有其他一些常用的方法，你将在本教程的后面部分使用到。
+
+最常见的HTTP方法之一是GET。 GET方法表示你正在尝试从指定资源获取或检索数据。 要发送GET请求，请调用 `requests.get()` 。
+
+你可以通过使用 `get()` 请求下面的URL来向GitHub的 [Root REST API](https://developer.github.com/v3/#root-endpoint) 发出GET请求：
+
+```shell
+>>> requests.get('https://api.github.com')
+<Response [200]>
+```
+
+恭喜！ 你发出了你的第一个请求。 接下来让我们更深入地了解该请求的响应。
+
 ***
 
 # 响应
