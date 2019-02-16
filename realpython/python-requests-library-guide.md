@@ -211,6 +211,48 @@ b'{"current_user_url":"https://api.github.com/user","current_user_authorizations
 
 # 查询字符串参数
 
+自定义 `GET` 请求的一种常用方法是通过URL中的 [查询字符串](https://en.wikipedia.org/wiki/Query_string) 参数传递值。 要使用 `get()` 执行此操作，请将数据传递给 `params` 。 例如，你可以使用GitHub的[Search](https://developer.github.com/v3/search/) API来查找 `requests` 库：
+
+```python
+import requests
+
+# Search GitHub's repositories for requests
+response = requests.get(
+    'https://api.github.com/search/repositories',
+    params={'q': 'requests+language:python'},
+)
+
+# Inspect some attributes of the `requests` repository
+json_response = response.json()
+repository = json_response['items'][0]
+print(f'Repository name: {repository["name"]}')  # Python 3.6+
+print(f'Repository description: {repository["description"]}')  # Python 3.6+
+```
+
+通过将字典 `{'q'：'requests + language：python'}` 传递给  `.get()` 的 `params` 参数，你可以修改从Search API返回的结果。
+
+你可以像你刚才那样以字典的形式或以元组列表形式将 `params` 传递给 `get()`:
+
+```shell
+>>> requests.get(
+...     'https://api.github.com/search/repositories',
+...     params=[('q', 'requests+language:python')],
+... )
+<Response [200]>
+```
+
+你甚至可以传 `bytes` 作为值:
+
+```shell
+>>> requests.get(
+...     'https://api.github.com/search/repositories',
+...     params=b'q=requests+language:python',
+... )
+<Response [200]>
+```
+
+查询字符串对于参数化GET请求很有用。 你还可以通过添加或修改发送的请求的头部来自定义你的请求。
+
 ***
 
 # 请求头
