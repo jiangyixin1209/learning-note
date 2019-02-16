@@ -1,4 +1,5 @@
 > 本文为译文，原文链接 [python-requests-library-guide](https://realpython.com/python-requests/) 
+> 本人博客: [编程禅师](http://blog.jiangyixin.top)
 
 [requests](http://docs.python-requests.org/en/master/) 库是用来在Python中发出标准的HTTP请求。 它将请求背后的复杂性抽象成一个漂亮，简单的API，以便你可以专注于与服务交互和在应用程序中使用数据。
 
@@ -567,3 +568,10 @@ except ConnectionError as ce:
 * 高效的使用`requests` 通过使用 `max_retries`，`timeout`，`Sessions` 和 `Transport Adapters` 
 
 因为您学会了如何使用 `requests`，所以你可以使用他们提供的迷人数据探索广泛的Web服务世界并构建出色的应用程序了。
+
+
+
+[![代码与艺术](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)
+
+
+  关注公众号 <代码与艺术>，学习更多国外精品技术文章。
