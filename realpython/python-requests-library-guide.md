@@ -284,7 +284,7 @@ print(f'Text matches: {repository["text_matches"]}')
 
 # 其他HTTP方法
 
-除了 `GET` 之外，其他流行的HTTP方法包括 `POST` ，``PUT` ，`DELETE`，`HEAD`，`PATCH`和`OPTIONS`。 `requests` 为每个HTTP方法提供了一个方法，与 `get()` `具有类似的结构:
+除了 `GET` 之外，其他流行的HTTP方法包括 `POST` ，`PUT` ，`DELETE`，`HEAD`，`PATCH`和`OPTIONS`。 `requests` 为每个HTTP方法提供了一个方法，与 `get()` `具有类似的结构:
 
 ```python
 >>> requests.post('https://httpbin.org/post', data={'key':'value'})
@@ -308,13 +308,13 @@ print(f'Text matches: {repository["text_matches"]}')
 {}
 ```
 
-每种方法的响应中都会返回头部，响应正文，状态码等。 接下来，你将进一步了解 `POST`，``PUT` 和 `PATCH` 方法，并了解它们与其他请求类型的区别。
+每种方法的响应中都会返回头部，响应正文，状态码等。 接下来，你将进一步了解 `POST`，`PUT` 和 `PATCH` 方法，并了解它们与其他请求类型的区别。
 
 ***
 
 # 消息体
 
-根据HTTP规范，`POST`，``PUT`和不太常见的`PATCH`请求通过消息体而不是通过查询字符串参数传递它们的数据。 使用 `requests`，你将有效负载传递给相应函数的 `data` 参数。
+根据HTTP规范，`POST`，`PUT`和不太常见的`PATCH`请求通过消息体而不是通过查询字符串参数传递它们的数据。 使用 `requests`，你将有效负载传递给相应函数的 `data` 参数。
 
 `data` 接收字典，元组列表，字节或类文件对象。 你需要将在请求正文中发送的数据调整为与你交互的服务的特定格式。
 
