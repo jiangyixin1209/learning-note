@@ -313,6 +313,39 @@ print(f'Text matches: {repository["text_matches"]}')
 
 # 消息体
 
+根据HTTP规范，`POST`，``PUT`和不太常见的`PATCH`请求通过消息体而不是通过查询字符串参数传递它们的数据。 使用 `requests`，你将有效负载传递给相应函数的 `data` 参数。
+
+`data` 接收字典，元组列表，字节或类文件对象。 你需要将在请求正文中发送的数据调整为与你交互的服务的特定格式。
+
+例如，如果你的请求的内容类型是 `application / x-www-form-urlencoded` ，则可以将表单数据作为字典发送：
+
+```shell
+>>> requests.post('https://httpbin.org/post', data={'key':'value'})
+<Response [200]>
+```
+
+你还可以将相同的数据作为元组列表发送:
+
+```python
+>>> requests.post('https://httpbin.org/post', data=[('key', 'value')])
+<Response [200]>
+```
+
+但是，如果需要发送JSON数据，则可以使用 `json` 参数。 当你通过 `json` 传递JSON数据时，`requests` 将序列化你的数据并为你添加正确的 `Content-Type` 标头。
+
+[httpbin.org](https://httpbin.org/) 是 `requests` 作者 [Kenneth Reitz](https://realpython.com/interview-kenneth-reitz/) 创建的一个很好的资源。 它是一种接收测试请求并响应有关请求数据的服务。 例如，你可以使用它来检查基本的POST请求:
+
+```shell
+>>> response = requests.post('https://httpbin.org/post', json={'key':'value'})
+>>> json_response = response.json()
+>>> json_response['data']
+'{"key": "value"}'
+>>> json_response['headers']['Content-Type']
+'application/json'
+```
+
+你可以从响应中看到服务器在你发送请求时收到了请求数据和标头。 `requests` 还以 `PreparedRequest` 的形式向你提供此信息。
+
 ***
 
 # 检查你的请求
