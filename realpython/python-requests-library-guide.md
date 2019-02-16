@@ -370,7 +370,67 @@ b'{"key": "value"}'
 
 ***
 
-# 授权
+# 身份验证
+
+身份验证可帮助服务了解你的身份。 通常，你通过将数据传递到 `Authorization` 头信息或服务定义的自定义头信息来向服务器提供凭据。 你在此处看到的所有请求函数都提供了一个名为 `auth` 的参数，允许你传递凭据。
+
+需要身份验证的一个示例API的是GitHub的 [Authenticated User](https://developer.github.com/v3/users/#get-the-authenticated-user) API。 此端点提供有关经过身份验证的用户配置文件的信息。 要向 `Authenticated User API` 发出请求，你可以将你的GitHub的用户名和密码以元组传递给 `get()` ：
+
+```shell
+>>> from getpass import getpass
+>>> requests.get('https://api.github.com/user', auth=('username', getpass()))
+<Response [200]>
+```
+
+如果你在元组中传递给 `auth` 的凭据有效，则请求成功。 如果你尝试在没有凭据的情况下发出此请求，你将看到状态代码为 `401 Unauthorized` :
+
+```shell
+>>> requests.get('https://api.github.com/user')
+<Response [401]>
+```
+
+当你以元组形式吧用户名和密码传递给 `auth` 参数时，`rqeuests` 将使用HTTP的基本访问认证方案来应用凭据。
+
+因此，你可以通过使用 `HTTPBasicAuth` 传递显式的基本身份验证凭据来发出相同的请求：
+
+```shell
+>>> from requests.auth import HTTPBasicAuth
+>>> from getpass import getpass
+>>> requests.get(
+...     'https://api.github.com/user',
+...     auth=HTTPBasicAuth('username', getpass())
+... )
+<Response [200]>
+```
+
+虽然你不需要明确进行基本身份验证，但你可能希望使用其他方法进行身份验证。 `requests` 提供了开箱即用的其他身份验证方法，例如 `HTTPDigestAuth` 和 `HTTPProxyAuth` 。
+
+你甚至可以提供自己的身份验证机制。 为此，你必须首先创建AuthBase的子类。 然后，实现`__call __()`：
+
+```python
+import requests
+from requests.auth import AuthBase
+
+class TokenAuth(AuthBase):
+    """Implements a custom authentication scheme."""
+
+    def __init__(self, token):
+        self.token = token
+
+    def __call__(self, r):
+        """Attach an API token to a custom auth header."""
+        r.headers['X-TokenAuth'] = f'{self.token}'  # Python 3.6+
+        return r
+
+
+requests.get('https://httpbin.org/get', auth=TokenAuth('12345abcde-token'))
+```
+
+在这里，你自定义的 `TokenAuth` 接收一个令牌，然后在你的请求头中的 `X-TokenAuth` 头中包含该令牌。
+
+错误的身份验证机制可能会导致安全漏洞，因此，除非服务因某种原因需要自定义身份验证机制，否则你始终希望使用像 `Basic` 或 `OAuth` 这样经过验证的身份验证方案。
+
+在考虑安全性时，让我们考虑使用 `requests` 处理SSL证书。
 
 ***
 
@@ -390,3 +450,14 @@ b'{"key": "value"}'
 
 # 总结
 
+在学习Python中强大的 `requests` 库方面，你已经走了很长的路。
+
+你现在能够：
+
+* 使用各种不同的HTTP方法发出请求，例如GET，POST和PUT
+* 通过修改请求头，身份验证，查询字符串和消息体来自定义你的请求
+* 检查发送到服务器的数据以及服务器发回给你的数据
+* 使用SSL证书验证
+* 高效的使用`requests` 通过使用 `max_retries`，`timeout`，`Sessions` 和 `Transport Adapters` 
+
+因为您学会了如何使用 `requests`，所以你可以使用他们提供的迷人数据探索广泛的Web服务世界并构建出色的应用程序了。
