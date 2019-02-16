@@ -350,6 +350,24 @@ print(f'Text matches: {repository["text_matches"]}')
 
 # 检查你的请求
 
+当你发出请求时，`requests` 库会在将请求实际发送到目标服务器之前准备该请求。 请求准备包括像验证头信息和序列化JSON内容等。
+
+你可以通过访问 `.request` 来查看 `PreparedRequest`:
+
+```shell
+>>> response = requests.post('https://httpbin.org/post', json={'key':'value'})
+>>> response.request.headers['Content-Type']
+'application/json'
+>>> response.request.url
+'https://httpbin.org/post'
+>>> response.request.body
+b'{"key": "value"}'
+```
+
+通过检查 `PreparedRequest` ，你可以访问有关正在进行的请求的各种信息，例如有效负载，URL，头信息，身份验证等。
+
+到目前为止，你已经发送了许多不同类型的请求，但它们都有一个共同点：它们是对公共API的未经身份验证的请求。 你遇到的许多服务可能都希望你以某种方式进行身份验证。
+
 ***
 
 # 授权
