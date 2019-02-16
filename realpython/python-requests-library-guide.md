@@ -257,9 +257,57 @@ print(f'Repository description: {repository["description"]}')  # Python 3.6+
 
 # 请求头
 
+要自定义请求头，你可以使用 `headers` 参数将HTTP头部组成的字典传递给 `get()`。 例如，你可以通过 `Accept` 中指定文本匹配媒体类型来更改以前的搜索请求，以在结果中突出显示匹配的搜索字词：
+
+```python
+import requests
+
+response = requests.get(
+    'https://api.github.com/search/repositories',
+    params={'q': 'requests+language:python'},
+    headers={'Accept': 'application/vnd.github.v3.text-match+json'},
+)
+
+# View the new `text-matches` array which provides information
+# about your search term within the results
+json_response = response.json()
+repository = json_response['items'][0]
+print(f'Text matches: {repository["text_matches"]}')
+```
+
+`Accept` 告诉服务器你的应用程序可以处理哪些内容类型。 由于你希望突出显示匹配的搜索词，所以使用的是 `application / vnd.github.v3.text-match + json`，这是一个专有的GitHub的 `Accept` 标头，其内容为特殊的JSON格式。
+
+在你了解更多自定义请求的方法之前，让我们通过探索其他HTTP方法来拓宽视野。
+
 ***
 
 # 其他HTTP方法
+
+除了 `GET` 之外，其他流行的HTTP方法包括 `POST` ，``PUT` ，`DELETE`，`HEAD`，`PATCH`和`OPTIONS`。 `requests` 为每个HTTP方法提供了一个方法，与 `get()` `具有类似的结构:
+
+```python
+>>> requests.post('https://httpbin.org/post', data={'key':'value'})
+>>> requests.put('https://httpbin.org/put', data={'key':'value'})
+>>> requests.delete('https://httpbin.org/delete')
+>>> requests.head('https://httpbin.org/get')
+>>> requests.patch('https://httpbin.org/patch', data={'key':'value'})
+>>> requests.options('https://httpbin.org/get')
+```
+
+调用每个函数使用相应的HTTP方法向httpbin服务发出请求。 对于每种方法，你可以像以前一样查看其响应：
+
+```python
+>>> response = requests.head('https://httpbin.org/get')
+>>> response.headers['Content-Type']
+'application/json'
+
+>>> response = requests.delete('https://httpbin.org/delete')
+>>> json_response = response.json()
+>>> json_response['args']
+{}
+```
+
+每种方法的响应中都会返回头部，响应正文，状态码等。 接下来，你将进一步了解 `POST`，``PUT` 和 `PATCH` 方法，并了解它们与其他请求类型的区别。
 
 ***
 
