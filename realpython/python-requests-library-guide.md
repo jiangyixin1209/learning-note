@@ -436,15 +436,121 @@ requests.get('https://httpbin.org/get', auth=TokenAuth('12345abcde-token'))
 
 # SSL证书验证
 
+每当你尝试发送或接收的数据都很敏感时，安全性就很重要。 通过HTTP与站点安全通信的方式是使用SSL建立加密连接，这意味着验证目标服务器的SSL证书至关重要。
+
+好消息是 `requests` 默认为你执行此操作。 但是，在某些情况下，你可能希望更改此行为。
+
+如果要禁用SSL证书验证，请将 `False` 传递给请求函数的 `verify` 参数:
+
+```shell
+>>> requests.get('https://api.github.com', verify=False)
+InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings
+  InsecureRequestWarning)
+<Response [200]>
+```
+
+当你提出不安全的请求时，`requests` 甚至会发出警告来帮助你保护数据安全。
+
 ***
 
 # 性能
 
-## 超时
+在使用 `requests` 时，尤其是在生产应用程序环境中，考虑性能影响非常重要。 超时控制，会话和重试限制等功能可以帮助你保持应用程序平稳运行。
+
+## 超时控制
+
+当你向外部服务发出请求时，系统将需要等待响应才能继续。 如果你的应用程序等待响应的时间太长，则可能会阻塞对你的服务的请求，你的用户体验可能会受到影响，或者你的后台作业可能会挂起。
+
+默认情况下，`requests` 将无限期地等待响应，因此你几乎应始终指定超时时间以防止这些事情发生。 要设置请求的超时，请使用 `timeout` 参数。 `timeout` 可以是一个整数或浮点数，表示在超时之前等待响应的秒数:
+
+```shell
+>>> requests.get('https://api.github.com', timeout=1)
+<Response [200]>
+>>> requests.get('https://api.github.com', timeout=3.05)
+<Response [200]>
+```
+
+在第一个请求中，请求将在1秒后超时。 在第二个请求中，请求将在3.05秒后超时。
+
+你还可以将元组传递给 `timeout`，第一个元素是连接超时（它允许客户端与服务器建立连接的时间），第二个元素是读取超时（一旦你的客户已建立连接而等待响应的时间）:
+
+```shell
+>>> requests.get('https://api.github.com', timeout=(2, 5))
+<Response [200]>
+```
+
+如果请求在2秒内建立连接并在建立连接的5秒内接收数据，则响应将按原样返回。 如果请求超时，则该函数将抛出 `Timeout` 异常：
+
+```python
+import requests
+from requests.exceptions import Timeout
+
+try:
+    response = requests.get('https://api.github.com', timeout=1)
+except Timeout:
+    print('The request timed out')
+else:
+    print('The request did not time out')
+```
+
+你的程序可以捕获 `Timeout` 异常并做出相应的响应。
 
 ## Session对象
 
+到目前为止，你一直在处理高级请求API，例如 `get()` 和 `post()`。 这些函数是你发出请求时所发生的事情的抽象。 为了你不必担心它们，它们隐藏了实现细节，例如如何管理连接。
+
+在这些抽象之下是一个名为 `Session` 的类。 如果你需要微调对请求的控制方式或提高请求的性能，则可能需要直接使用 `Session` 实例。
+
+`Session` 用于跨请求保留参数。 例如，如果要跨多个请求使用相同的身份验证，则可以使用`session`：
+
+```python
+import requests
+from getpass import getpass
+
+# By using a context manager, you can ensure the resources used by
+# the session will be released after use
+with requests.Session() as session:
+    session.auth = ('username', getpass())
+
+    # Instead of requests.get(), you'll use session.get()
+    response = session.get('https://api.github.com/user')
+
+# You can inspect the response just like you did before
+print(response.headers)
+print(response.json())
+```
+
+每次使用 `session` 发出请求时，一旦使用身份验证凭据初始化，凭据将被保留。
+
+`session` 的主要性能优化以持久连接的形式出现。 当你的应用程序使用 `Session` 建立与服务器的连接时，它会在连接池中保持该连接。 当你的应用程序想要再次连接到同一服务器时，它将重用池中的连接而不是建立新连接。
+
 ## 最大重试
+
+请求失败时，你可能希望应用程序重试相同的请求。 但是，默认情况下，`requests` 不会为你执行此操作。 要应用此功能，您需要实现自定义 [Transport Adapter](http://docs.python-requests.org/en/master/user/advanced/#transport-adapters)。
+
+通过 `Transport Adapters `，你可以为每个与之交互的服务定义一组配置。 例如，假设你希望所有对于https://api.github.com的请求在最终抛出 `ConnectionError` 之前重试三次。 你将构建一个 `Transport Adapter`，设置其 `max_retries` 参数，并将其装载到现有的 `Session`：
+
+```python
+import requests
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
+
+github_adapter = HTTPAdapter(max_retries=3)
+
+session = requests.Session()
+
+# Use `github_adapter` for all requests to endpoints that start with this URL
+session.mount('https://api.github.com', github_adapter)
+
+try:
+    session.get('https://api.github.com')
+except ConnectionError as ce:
+    print(ce)
+```
+
+当您将 `HTTPAdapter(github_adapter)`挂载到 `session` 时，`session`将遵循其对https://api.github.com的每个请求的配置。
+
+`Timeouts`，`Transport Adapters`和 `Sessions` 用于保持代码高效和应用程序的鲁棒性。
 
 ***
 
