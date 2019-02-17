@@ -66,5 +66,82 @@ b'Hello there, here is a test email'
 
 ***
 
-# 发送纯文本的电子邮件
+# 发送纯文本邮件
 
+在我们深入发送包含HTML内容和附件的电子邮件之前，你将学会使用Python发送纯文本电子邮件。 这些是你可以在简单的文本编辑器中编写的电子邮件。 没有像文本格式或超链接这样的奇特东西。 这些稍后你会了解到。
+
+## 开始一个安全SMTP连接
+
+当你通过Python发送电子邮件时，应确保你的SMTP连接已加密，以便其他人无法轻松访问你的邮件和登录凭据。 SSL（安全套接字层）和TLS（传输层安全性）是两种可用于加密SMTP连接的协议。 使用本地调试服务器时，不必使用其中任何一个。
+
+有两种方法可以与你的电子邮件服务器建立安全连接：
+
+* 使用 `SMTP_SSL()` 建立安全的SMTP连接
+* 使用不安全的SMTP连接，然后使用 `.starttls()` 加密
+
+在这两种情况下，Gmail都会使用TLS加密电子邮件，因为这是SSL更安全的后续版本。 根据Python的[安全注意事项](https://docs.python.org/3/library/ssl.html#ssl-security)，强烈建议你使用 [ssl](https://docs.python.org/3/library/ssl.html) 模块中的 `create_default_context()`。 这将加载系统的可信CA证书，启用主机名检查和证书验证，并尝试选择适合的安全的协议和密码设置。
+
+如果要检查Gmail收件箱中电子邮件的加密信息，请转到更多→显示原始内容来查看“已接收”标题下列出的加密类型。
+
+[smtplib](https://docs.python.org/3/library/smtplib.html) 是Python的内置模块，用于使用SMTP或ESMTP监听器守护程序向任何Internet计算机发送电子邮件。
+
+我将首先向你展示如何使用 `SMTP_SSL()`，因为它从一开始就实例化一个安全的连接，并且比使用 `.starttls()` 替代方案略微简洁。 请注意，如果使用 `SMTP_SSL()` ，则Gmail要求你连接到465端口，使用 `.starttls()` 时，要求连接到589端口。
+
+### 选项1: 使用 **SMPT_SSL()** 
+
+下面的代码示例使用 `smtplib` 的 `SMTP_SSL()` 初始化TLS加密连接，以此来与Gmail的SMTP服务器建立安全连接。 `ssl` 的默认上下文验证主机名及其证书，并优化连接的安全性。 请务必填写你自己的电子邮件地址而不是 `my@gmail.com`：
+
+```python
+import smtplib, ssl
+
+port = 465  # For SSL
+password = input("Type your password and press enter: ")
+
+# Create a secure SSL context
+context = ssl.create_default_context()
+
+with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
+    server.login("my@gmail.com", password)
+    # TODO: Send email here
+```
+
+
+使用 `with smtplib.SMTP_SSL() as server` 确保连接在缩进代码块的末尾自动关闭。 如果port为零或未指定，则 `.SMTP_SSL()` 将使用标准端口（端口465）。
+
+将电子邮件密码存储在代码中并不安全，特别是如果你打算与他人共享。 相反，`使用input()` 让用户在运行脚本时输入密码，如上例所示。 如果你在输入时不希望密码显示在屏幕上，则可以导入 [getpass](https://docs.python.org/3/library/getpass.html) 模块并使用 `.getpass()` 代替直接输入密码。
+
+### 选项2: 使用 **.starttls()** 
+
+我们可以创建一个不安全的SMTP连接并使用 `.starttls()` 加密它，而不是使用 `.SMTP_SSL()` 一开始就创建是安全的连接。
+
+为此，创建一个 `smtplib.SMTP` 实例，该实例封装SMTP连接并允许你访问其方法。 我建议你在脚本开头定义SMTP服务器和端口，以便轻松配置它们。
+
+下面的代码片段使用 `server= SMTP()` ，而不是使用 `with SMTP() as server:` 这个我们在上一个示例中使用了的格式。 为了确保在出现问题时代码不会崩溃，请将主代码放在 `try` 块中，让 `except` 块将任何错误消息打印到 `stdout` ：
+
+```python
+import smtplib, ssl
+
+smtp_server = "smtp.gmail.com"
+port = 587  # For starttls
+sender_email = "my@gmail.com"
+password = input("Type your password and press enter: ")
+
+# Create a secure SSL context
+context = ssl.create_default_context()
+
+# Try to log in to server and send email
+try:
+    server = smtplib.SMTP(smtp_server,port)
+    server.ehlo() # Can be omitted
+    server.starttls(context=context) # Secure the connection
+    server.ehlo() # Can be omitted
+    server.login(sender_email, password)
+    # TODO: Send email here
+except Exception as e:
+    # Print any error messages to stdout
+    print(e)
+finally:
+    server.quit() 
+```
+
+要在服务器上标识自己，应在创建 `.SMTP()` 对象后调用 `.helo()` （SMTP）或 `.ehlo()` （ESMTP），并在 `.starttls()` 后再调用。 此函数由 `.starttls()` 和 `.sendmail()` 隐式调用，因此除非你要检查服务器的SMTP服务扩展，否则不必显式调用 `.helo()` 或 `.ehlo()` 。
