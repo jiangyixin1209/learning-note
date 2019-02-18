@@ -215,3 +215,68 @@ with smtplib.SMTP(smtp_server, port) as server:
     server.sendmail(sender_email, receiver_email, message)
 ```
 
+***
+
+# 发送花哨的电子邮件
+
+Python的内置 `email` 包允许你构建更多花哨的电子邮件，然后可以使用 `smptlib` 进行传输。 下面，你将了解如何使用 email` 包发送包含HTML内容和附件的电子邮件。
+
+## 包含HTML内容
+
+如果你要格式化电子邮件中的文本（粗体，斜体等），或者如果要添加任何图像，超链接或响应式的内容，则使用HTML非常方便。 今天最常见的电子邮件类型是MIME（多用途因特网邮件扩展）多部分的电子邮件，它结合了HTML和纯文本。 MIME消息由Python的 `email.mime` 模块处理。 有关详细说明，请查看[文档](https://docs.python.org/3/library/email.mime.html) 。
+
+由于并非所有电子邮件客户端都默认显示HTML内容，并且出于安全原因，有些人仅选择接收纯文本电子邮件，因此为HTML消息添加纯文本的替代非常重要。 由于电子邮件客户端将首先渲染最后一部分的附件，因此请确保在纯文本版本之后添加HTML消息。
+
+在下面的示例中，我们的 `MIMEText()` 对象将包含消息的HTML和纯文本版本，`MIMEMultipart（"alternative"）` 实例将这些组合成一个带有两个备用渲染选项的消息：
+
+```python
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+sender_email = "my@gmail.com"
+receiver_email = "your@gmail.com"
+password = input("Type your password and press enter:")
+
+message = MIMEMultipart("alternative")
+message["Subject"] = "multipart test"
+message["From"] = sender_email
+message["To"] = receiver_email
+
+# Create the plain-text and HTML version of your message
+text = """\
+Hi,
+How are you?
+Real Python has many great tutorials:
+www.realpython.com"""
+html = """\
+<html>
+  <body>
+    <p>Hi,<br>
+       How are you?<br>
+       <a href="http://www.realpython.com">Real Python</a> 
+       has many great tutorials.
+    </p>
+  </body>
+</html>
+"""
+
+# Turn these into plain/html MIMEText objects
+part1 = MIMEText(text, "plain")
+part2 = MIMEText(html, "html")
+
+# Add HTML/plain-text parts to MIMEMultipart message
+# The email client will try to render the last part first
+message.attach(part1)
+message.attach(part2)
+
+# Create secure connection with server and send email
+context = ssl.create_default_context()
+with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+    server.login(sender_email, password)
+    server.sendmail(
+        sender_email, receiver_email, message.as_string()
+    )
+```
+
+在此示例中，首先将纯文本和HTML消息定义为字符串文字，然后将它们存储为 `plain / html MIMEText` 对象。 然后可以按顺序将这些添加到 `MIMEMultipart（"alternative"）` 消息中，并通过与电子邮件服务器的安全连接发送。 请记住在替代的纯文本后添加HTML消息，因为电子邮件客户端将尝试首先渲染最后一个子部分。
