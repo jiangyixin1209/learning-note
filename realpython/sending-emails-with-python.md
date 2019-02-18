@@ -280,3 +280,4 @@ with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
 ```
 
 在此示例中，首先将纯文本和HTML消息定义为字符串文字，然后将它们存储为 `plain / html MIMEText` 对象。 然后可以按顺序将这些添加到 `MIMEMultipart（"alternative"）` 消息中，并通过与电子邮件服务器的安全连接发送。 请记住在替代的纯文本后添加HTML消息，因为电子邮件客户端将尝试首先渲染最后一个子部分。
+
