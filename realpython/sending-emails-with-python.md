@@ -281,3 +281,241 @@ with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
 
 在此示例中，首先将纯文本和HTML消息定义为字符串文字，然后将它们存储为 `plain / html MIMEText` 对象。 然后可以按顺序将这些添加到 `MIMEMultipart（"alternative"）` 消息中，并通过与电子邮件服务器的安全连接发送。 请记住在替代的纯文本后添加HTML消息，因为电子邮件客户端将尝试首先渲染最后一个子部分。
 
+## 使用 **email** 添加附件
+
+为了将二进制文件发送到设计用于处理文本数据的电子邮件服务器，需要在传输之前对其进行编码。 这通常使用base64完成，它将二进制数据编码为可打印的ASCII字符。
+
+下面的代码示例展示了如何在发送电子邮件时将PDF文件作为附件：
+
+```python
+import email, smtplib, ssl
+
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+subject = "An email with attachment from Python"
+body = "This is an email with attachment sent from Python"
+sender_email = "my@gmail.com"
+receiver_email = "your@gmail.com"
+password = input("Type your password and press enter:")
+
+# Create a multipart message and set headers
+message = MIMEMultipart()
+message["From"] = sender_email
+message["To"] = receiver_email
+message["Subject"] = subject
+message["Bcc"] = receiver_email  # Recommended for mass emails
+
+# Add body to email
+message.attach(MIMEText(body, "plain"))
+
+filename = "document.pdf"  # In same directory as script
+
+# Open PDF file in binary mode
+with open(filename, "rb") as attachment:
+    # Add file as application/octet-stream
+    # Email client can usually download this automatically as attachment
+    part = MIMEBase("application", "octet-stream")
+    part.set_payload(attachment.read())
+
+# Encode file in ASCII characters to send by email    
+encoders.encode_base64(part)
+
+# Add header as key/value pair to attachment part
+part.add_header(
+    "Content-Disposition",
+    f"attachment; filename= {filename}",
+)
+
+# Add attachment to message and convert message to string
+message.attach(part)
+text = message.as_string()
+
+# Log in to server using secure context and send email
+context = ssl.create_default_context()
+with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+    server.login(sender_email, password)
+    server.sendmail(sender_email, receiver_email, text)
+```
+
+`MIMEultipart()` 接受[RFC5233](https://tools.ietf.org/html/rfc5233.html)样式的键/值对形式的参数，这些参数存储在字典中并传递给 `Message` 基类的 `.add_header`方法。
+
+查看Python的 `email.mime` 模块的文档，了解有关使用MIME类的更多信息。
+
+***
+
+# 发送多封个性化电子邮件
+
+想象一下，你希望向你组织的成员发送电子邮件，以提醒他们支付他们的捐款费用。 或者，你可能希望向班级中的学生发送个性化电子邮件，其中包含最近作业的成绩。 这些任务在Python中轻而易举。
+
+## 使用相关个人信息制作CSV文件
+
+发送多封个性化电子邮件的简单开始是创建包含所有必需个人信息的CSV（逗号分隔值）文件。 （确保在未经他们同意的情况下不共享其他人的私人信息。）CSV文件可以被视为一个简单的表，其中第一行通常包含列标题。
+
+以下是 `contacts_file.csv` 文件的内容，我将其保存在与Python代码相同的文件夹中。 它包含一组虚构人物的名称，地址和成绩。 我使用 `my+modifier@gmail.com` 构造来确保所有电子邮件最终都在我自己的收件箱中，在此示例中为 `my@gmail.com` ：
+
+```csv
+name,email,grade
+Ron Obvious,my+ovious@gmail.com,B+
+Killer Rabbit of Caerbannog,my+rabbit@gmail.com,A
+Brian Cohen,my+brian@gmail.com,C
+```
+
+创建CSV文件时，请确保使用逗号分隔你的值，而不包含任何的空格。
+
+## 遍历行发送多个邮件
+
+下面的代码示例显示了如何打开CSV文件并循环其内容行（跳过标题行）。 为了确保代码在你向所有联系人发送电子邮件之前正常运行。我已经为每个联系人打印了 `Sending email to ...`，我们稍后可以用实际发送电子邮件的功能替换它们：
+
+```python
+import csv
+
+with open("contacts_file.csv") as file:
+    reader = csv.reader(file)
+    next(reader)  # Skip header row
+    for name, email, grade in reader:
+        print(f"Sending email to {name}")
+        # Send email here
+```
+
+在上面的示例中，使用 `open(filename) as file`:  确保你的文件在代码块的末尾关闭。 `csv.reader()` 可以逐行读取CSV文件并提取其值。 `next(reader)` 会跳过标题行，接下的一行 `for name, email, grade in reader`：使用Python中的解包操作，并将结果值存储在当前联系人的名称，电子邮件和成绩中。
+
+如果CSV文件中的值包含任一侧或两侧的空格，则可以使用 `.strip()` 方法删除它们。
+
+## 个性化的的内容
+
+你可以使用 `str.format()` 填充大括号占位符，将个性化内容放入消息中。 例如，`"hi {name}, you {result} your assignment".format(name="John", result="passed")`  会给你 `"hi John, you passed your assignment"` 。
+
+从Python 3.6开始，使用f-string可以更优雅地完成字符串格式化，但这些需要在f-string本身之前定义占位符。 为了在脚本开头定义电子邮件消息，并在循环CSV文件时填写每个联系人的占位符，使用较旧的 `.format()` 方法。
+
+考虑到这一点，你可以设置一个通用消息体，其中可以为个人定制占位符。
+
+## 代码案例
+
+以下代码示例允许你向多个联系人发送个性化电子邮件。 它会循环CSV文件显示每个联系人的姓名，电子邮件，成绩的，如上例所示。
+
+常规消息在脚本开头定义，对于CSV文件中的每个联系人，其 `{name}` 和 `{grade}` 占位符都已填入，并且通过与Gmail服务器的安全连接发送个性化电子邮件，正如你之前看过的：
+
+```python
+import csv, smtplib, ssl
+
+message = """Subject: Your grade
+
+Hi {name}, your grade is {grade}"""
+from_address = "my@gmail.com"
+password = input("Type your password and press enter: ")
+
+context = ssl.create_default_context()
+with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+    server.login(from_address, password)
+    with open("contacts_file.csv") as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header row
+        for name, email, grade in reader:
+            server.sendmail(
+                from_address,
+                email,
+                message.format(name=name,grade=grade),
+            )
+```
+
+***
+
+# Yagmail
+
+有多个库可以让您更轻松地发送电子邮件，例如 [Envelopes](https://github.com/tomekwojcik/envelopes)，[Flanker](https://github.com/mailgun/flanker) 和 [Yagmail](https://pypi.org/project/yagmail/)。 Yagmail旨在专门用于Gmail，它通过友好的API大大简化了发送电子邮件的过程，如下面的代码示例所示：
+
+```python
+import yagmail
+
+receiver = "your@gmail.com"
+body = "Hello there from Yagmail"
+filename = "document.pdf"
+
+yag = yagmail.SMTP("my@gmail.com")
+yag.send(
+    to=receiver,
+    subject="Yagmail test with attachment",
+    contents=body, 
+    attachments=filename,
+)
+```
+
+此代码示例发送带有PDF附件的电子邮件，比我们使用 `email` 和 `smtplib` 发送邮件的例子代码量大大减少 。
+
+设置Yagmail时，你可以将Gmail验证添加到操作系统的密钥环中，如[文档](https://yagmail.readthedocs.io/en/latest/api.html#authentication)中所述。 如果你不这样做，Yagmail会在需要时提示你输入密码并自动将其存储在密钥环中。
+
+***
+
+# 事务性邮件服务
+
+如果你计划发送大量电子邮件，想要查看电子邮件统计信息，并希望确保可靠的投放，则可能需要查看事务性电子邮件服务。 虽然以下所有服务都发送大量电子邮件的付费套餐，但他们还提供免费套餐，以便你可以试用它们。 其中一些免费计划无限期有效，可能足以满足你的电子邮件需求。
+
+以下是一些主要事务性电子邮件服务的免费计划概述。 单击提供商名称将转到其网站的定价部分。
+
+| 供应商                                                       | 免费套餐                              |
+| ------------------------------------------------------------ | ------------------------------------- |
+| [Sendgrid](https://sendgrid.com/marketing/sendgrid-services-cro/#compare-plans) | 起初30天内40000封免费，接下来100封/天 |
+| [Sendinblue](https://www.sendinblue.com/pricing/)            | 200 封/天                             |
+| [Mailgun](https://www.mailgun.com/pricing-simple)            | 开始的10000封免费                     |
+| [Mailjet](https://www.mailjet.com/pricing/)                  | 200 封/天                             |
+| [Amazon SES](https://aws.amazon.com/free/?awsf.Free%20Tier%20Types=categories%23alwaysfree) | 62,000 封/月                          |
+
+你可以运行Google搜索以查看最符合你需求的提供商，或者只是尝试一些免费计划，以查看你最喜欢哪种API。
+
+***
+
+# Sendgrid代码示例
+
+这是一个使用Sendgrid发送电子邮件的代码示例，为你提供如何使用Python的事务性电子邮件服务的方法：
+
+```python
+import os
+import sendgrid
+from sendgrid.helpers.mail import Content, Email, Mail
+
+sg = sendgrid.SendGridAPIClient(
+    apikey=os.environ.get("SENDGRID_API_KEY")
+)
+from_email = Email("my@gmail.com")
+to_email = Email("your@gmail.com")
+subject = "A test email from Sendgrid"
+content = Content(
+    "text/plain", "Here's a test email sent through Python"
+)
+mail = Mail(from_email, subject, to_email, content)
+response = sg.client.mail.send.post(request_body=mail.get())
+
+# The statements below can be included for debugging purposes
+print(response.status_code)
+print(response.body)
+print(response.headers)
+```
+
+要运行此代码，你必须先：
+
+* [注册一个（免费）Sendgrid帐户](https://sendgrid.com/free/?source=sendgrid-python)
+* [请求一个API密钥](https://app.sendgrid.com/settings/api_keys)用于进行用户验证
+* 通过在命令提示符中键入 `setx SENDGRID_API_KEY “YOUR_API_KEY”`（永久存储此API密钥）来添加API密钥，或者设置 `SENDGRID_API_KEY YOUR_API_KEY` 以仅为当前客户端会话存储它
+
+有关如何在Mac和Windows设置Sendgrid，可以在[Github](https://github.com/sendgrid/sendgrid-python)上的存储库README中找到更多信息。
+
+***
+
+# 总结
+
+你现在可以启动安全的SMTP连接，并向联系人列表中的人员发送多个个性化电子邮件！
+
+你已经学会了如何使用纯文本替代方式发送HTML电子邮件，并将文件附加到你的电子邮件中。 当你使用Gmail帐户时，Yagmail软件包可简化所有这些任务。 如果你计划发送大量电子邮件，则值得研究事务性电子邮件服务。
+
+享受用Python发送电子邮件，但记住：请不要垃圾邮件！
+
+
+
+
+[![代码与艺术](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)
+
+
+  关注公众号 <代码与艺术>，学习更多国外精品技术文章。
