@@ -269,3 +269,157 @@ open('abc.txt', 'rb', buffering=0)
 
 ***
 
+# 读写已打开的文件
+
+打开文件后，你将需要读取或写入文件。首先，让我们来阅读一个文件。可以在文件对象上调用多种方法：
+
+| 方法                                                         | 描述                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`.read(size=-1)`](https://docs.python.org/3.7/library/io.html#io.RawIOBase.read) | 这将根据`size`字节数从文件中读取。如果没有传递参数或`None`或`-1`，那么整个文件被读取。 |
+| [`.readline(size=-1)`](https://docs.python.org/3.7/library/io.html#io.IOBase.readline) | 这将从该行读取最多`size`数量的字符。直到到行结尾，然后到下一行。如果没有参数被传递或`None`或`-1`，则整行（或行剩余的部分）被读出。 |
+|                                                              |                                                              |
+
+使用上面使用过的 `dog_breeds.txt` 文件，我们来看一些如何使用这些方法的示例。以下是如何使用 `.read()` 命令打开和读取整个文件的示例：
+
+```shell
+>>> with open('dog_breeds.txt', 'r') as reader:
+>>>     # Read & print the entire file
+>>>     print(reader.read())
+Pug
+Jack Russel Terrier
+English Springer Spaniel
+German Shepherd
+Staffordshire Bull Terrier
+Cavalier King Charles Spaniel
+Golden Retriever
+West Highland White Terrier
+Boxer
+Border Terrier
+```
+
+这是一个如何使用`.readline()`在一行中每次读取5个字节的示例：
+
+```shell
+>>> with open('dog_breeds.txt', 'r') as reader:
+>>>     # Read & print the first 5 characters of the line 5 times
+>>>     print(reader.readline(5))
+>>>     # Notice that line is greater than the 5 chars and continues
+>>>     # down the line, reading 5 chars each time until the end of the
+>>>     # line and then "wraps" around
+>>>     print(reader.readline(5))
+>>>     print(reader.readline(5))
+>>>     print(reader.readline(5))
+>>>     print(reader.readline(5))
+Pug
+
+Jack 
+Russe
+l Ter
+rier
+```
+
+> 译者注：第一次调用reader.readline(5) 实际打印出 Pug\r\n，因此可以看到有输出一个换行
+
+以下是使用`.readlines()`将整个文件作为列表读取的示例：
+
+```shell
+>>> f = open('dog_breeds.txt')
+>>> f.readlines()  # Returns a list object
+['Pug\n', 'Jack Russel Terrier\n', 'English Springer Spaniel\n', 'German Shepherd\n', 'Staffordshire Bull Terrier\n', 'Cavalier King Charles Spaniel\n', 'Golden Retriever\n', 'West Highland White Terrier\n', 'Boxer\n', 'Border Terrier\n']
+```
+
+上面的例子也可以通过使用`list()`从文件对象创建列表来完成：
+
+```python
+>>> f = open('dog_breeds.txt')
+>>> list(f)
+['Pug\n', 'Jack Russel Terrier\n', 'English Springer Spaniel\n', 'German Shepherd\n', 'Staffordshire Bull Terrier\n', 'Cavalier King Charles Spaniel\n', 'Golden Retriever\n', 'West Highland White Terrier\n', 'Boxer\n', 'Border Terrier\n']
+```
+
+## 迭代文件中的每一行
+
+读取文件时常见的事情是迭代每一行。以下是如何使用`.readline()`执行该迭代的示例：
+
+```shell
+>>> with open('dog_breeds.txt', 'r') as reader:
+>>>     # Read and print the entire file line by line
+>>>     line = reader.readline()
+>>>     while line != '':  # The EOF char is an empty string
+>>>         print(line, end='')
+>>>         line = reader.readline()
+Pug
+Jack Russel Terrier
+English Springer Spaniel
+German Shepherd
+Staffordshire Bull Terrier
+Cavalier King Charles Spaniel
+Golden Retriever
+West Highland White Terrier
+Boxer
+Border Terrier
+```
+
+迭代文件中每一行的另一种方法是使用`.readlines()`文件对象。请记住，`.readlines()`返回一个列表，其中列表中的每个元素代表文件中的一行：
+
+```shell
+>>> with open('dog_breeds.txt', 'r') as reader:
+>>>     for line in reader.readlines():
+>>>         print(line, end='')
+Pug
+Jack Russell Terrier
+English Springer Spaniel
+German Shepherd
+Staffordshire Bull Terrier
+Cavalier King Charles Spaniel
+Golden Retriever
+West Highland White Terrier
+Boxer
+Border Terrier
+```
+
+但是，通过迭代文件对象本身可以进一步简化上述示例：
+
+```shell
+>>> with open('dog_breeds.txt', 'r') as reader:
+>>>     # Read and print the entire file line by line
+>>>     for line in reader:
+>>>         print(line, end='')
+Pug
+Jack Russel Terrier
+English Springer Spaniel
+German Shepherd
+Staffordshire Bull Terrier
+Cavalier King Charles Spaniel
+Golden Retriever
+West Highland White Terrier
+Boxer
+Border Terrier
+```
+
+最后的方法更Pythonic，可以更快，更高效。因此，建议你改用它。
+
+> **注意：**上面的一些示例包含`print('some text', end='')`。这`end=''`是为了防止Python为正在打印的文本添加额外的换行符，并仅打印从文件中读取的内容。
+
+现在让我们深入研究文件。与读取文件一样，文件对象有多种方法可用于写入文件：
+
+| 方法             | 描述                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| .write(string)   | 将字符串写入文件。                                           |
+| .writelines(seq) | 将序列写入文件。不会给每个序列项附加结尾符。这会由你来添加适当的结尾符。 |
+
+以下是使用`.write()`和的简单示例`.writelines()`：
+
+```python
+with open('dog_breeds.txt', 'r') as reader:
+    # Note: readlines doesn't trim the line endings
+    dog_breeds = reader.readlines()
+
+with open('dog_breeds_reversed.txt', 'w') as writer:
+    # Alternatively you could use
+    # writer.writelines(reversed(dog_breeds))
+
+    # Write the dog breeds to the file in reversed order
+    for breed in reversed(dog_breeds):
+        writer.write(breed)
+```
+
