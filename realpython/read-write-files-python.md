@@ -137,3 +137,135 @@ Border Terrier\r
 你可能面临的另一个常见问题是字节数据的编码。编码是从字节数据到人类可读字符的转换。通常通过指定编码的格式来完成。两种最常见的编码是[ASCII](https://www.ascii-code.com/)和[UNICODE](https://unicode.org/)格式。[ASCII只能存储128个字符](https://en.wikipedia.org/wiki/ASCII)，而[Unicode最多可包含1,114,112个字符](https://en.wikipedia.org/wiki/Unicode)。
 
 ASCII实际上是Unicode（UTF-8）的子集，这意味着ASCII和Unicode共享相同的数值字符值。重要的是要注意，使用不正确的字符编码解析文件可能会导致字符转换失败和出错。例如，如果文件是使用UTF-8编码创建的，并且你尝试使用ASCII编码对其进行解析，则如果存在超出这128个值的字符，则会引发错误。
+
+***
+
+# 在Python中打开和关闭文件
+
+当你想使用文件时，首先要做的就是打开它。该操作通过调用 [open()](https://docs.python.org/3/library/functions.html#open) 内置函数完成的。`open()`有一个必需的参数，它是文件的路径。`open()`有一个返回，是这个文件的[文件对象](https://docs.python.org/3/glossary.html#term-file-object)：
+
+```python
+file = open('dog_breeds.txt')
+```
+
+打开文件后，接下来要学习的是如何关闭它。
+
+> **警告：**你应*始终*确保正确关闭打开的文件。
+
+重要的是要记住，关闭文件是你的责任。在大多数情况下，在应用程序或脚本终止时，文件最终将被关闭。但是，无法保证实际上将会发生什么。这可能导致不必要的行为，包括资源泄漏。这也是Python（Pythonic）中的最佳实践，以确保你的代码以明确定义的方式运行并减少任何不需要的行为。
+
+当你操作文件时，有两种方法可以确保文件正确关闭，即使遇到错误也是如此。关闭文件的第一种方法是使用`try-finally`块：
+
+```python
+reader = open('dog_breeds.txt')
+try:
+    # Further file processing goes here
+finally:
+    reader.close()
+```
+
+如果你不熟悉`try-finally`块的内容，请查看[Python Exceptions：An Introduction](https://realpython.com/python-exceptions/)。
+
+关闭文件的第二种方法是使用以下`with`语句：
+
+```python
+with open('dog_breeds.txt') as reader:
+    # Further file processing goes here
+```
+
+使用 `with`语句，一旦离开了`with`块或甚至在错误的情况下，系统也会自动关闭文件。我强烈建议你尽可能使用`with`语句，因为它的代码更加清晰并使你更容易处理任何意外错误。
+
+最有可能的是，你也想要使用第二个位置参数`mode`。此参数是一个字符串，其中包含多个字符以表示你要如何打开文件。默认值和最常见的是`'r'`，表示以只读模式将文件作为文本文件打开：
+
+```python
+with open('dog_breeds.txt', 'r') as reader:
+    # Further file processing goes here
+```
+
+其他模式请看[在线文档](https://docs.python.org/3/library/functions.html#open)，但最常用的模式如下：
+
+| 模式             | 含义                                  |
+| ---------------- | ------------------------------------- |
+| 'r'              | 只读模式打开(默认)                    |
+| ‘w’              | 写入模式打开，会覆盖文件              |
+| `'rb'` 或 `'wb'` | 以二进制模式打开（使用字节数据读/写） |
+
+让我们回过头来谈谈文件对象。文件对象是：
+
+> “将面向文件的API（使用`read()`or `write()` 等方法）暴露给底层资源的对象。”（[来源](https://docs.python.org/3/glossary.html#term-file-object)）
+
+有三种不同类型的文件对象：
+
+- 文本文件
+- 缓冲的二进制文件
+- 原始二进制文件
+
+这些中每一种文件类型的都在`io`模块中定义。这里简要介绍了这三种类型。
+
+## 文本文件
+
+文本文件是你将遇到的最常见的文件。以下是一些如何打开这些文件的示例：
+
+```python
+open('abc.txt')
+
+open('abc.txt', 'r')
+
+open('abc.txt', 'w')
+```
+
+对于此类型的文件，`open()`将返回一个`TextIOWrapper`文件对象：
+
+```shell
+>>> file = open('dog_breeds.txt')
+>>> type(file)
+<class '_io.TextIOWrapper'>
+```
+
+这是`open()`默认返回的文件对象。
+
+## 缓冲二进制文件类型
+
+缓冲二进制文件类型用于读取和写入二进制文件。以下是一些如何打开这些文件的示例：
+
+```python
+open('abc.txt', 'rb')
+
+open('abc.txt', 'wb')
+```
+
+对于此类型的文件，`open()`将返回一个`BufferedReader`或`BufferedWriter`文件对象：
+
+```shell
+>>> file  =  open （'dog_breeds.txt' ， 'rb' ）
+>>> type （file ）
+<class'_io.BufferedReader'> 
+>>> file  =  open （'dog_breeds.txt' ， 'wb' ）
+> >> type （file ）
+<class'_io.BufferedWriter'>
+```
+
+## 原始文件类型
+
+原始文件类型是：
+
+> “通常用作二进制和文本流的低级构建块。”（[来源](https://docs.python.org/3.7/library/io.html#raw-i-o)）
+
+因此通常不使用它。
+
+以下是如何打开这些文件的示例：
+
+```python
+open('abc.txt', 'rb', buffering=0)
+```
+
+对于此类型的文件，`open()`将返回一个`FileIO`文件对象：
+
+```shell
+>>> file = open('dog_breeds.txt', 'rb', buffering=0)
+>>> type(file)
+<class '_io.FileIO'>
+```
+
+***
+
