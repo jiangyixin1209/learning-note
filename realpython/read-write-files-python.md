@@ -787,3 +787,9 @@ class PngReader():
 - 如何读写文件
 - 使用文件时的一些高级技术
 - 一些库使用常见的文件类型
+
+[![qrcode_for_gh_aeefa52af384_258.jpg](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)](https://i.loli.net/2019/02/04/5c57ae3acb5c8.jpg)
+
+
+  关注公众号 <代码与艺术>，学习更多国外精品技术文章。
+
