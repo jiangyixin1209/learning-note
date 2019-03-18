@@ -65,3 +65,59 @@ Pyhton 2.7.12
 4. 在已安装的版本之间切换
 
 `pyenv` 能让你做这些所有事情或者更多。
+
+***
+
+# 安装pyenv
+
+在安装`pyenv`之前，你需要安装一些特定于操作系统的依赖项。这些依赖项主要是用C编写的开发公用程序，并且是必需的，因为`pyenv`通过从源代码构建来安装Python。有关依赖项的更详细的分类和说明，你可以查看[官方文档。](https://devguide.python.org/setup/#build-dependencies)在本教程中，你将看到安装这些依赖项的最常用方法。
+
+> **注意：** `pyenv`最初并不支持Windows。然而，最近变得活跃的[pyenv-win](https://github.com/pyenv-win/pyenv-win)项目似乎有一些基本的支持。如果你使用Windows，请随时查看。
+
+## 构建依赖项
+
+`pyenv`从源代码构建Python，这意味着你需要安装依赖项才能实际使用`pyenv`。构建依赖项因平台而异。如果你使用的是**Ubuntu / Debian**并且想要安装构建依赖项，则可以使用以下命令：
+
+```shell
+sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \ 
+libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev \
+libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl
+```
+
+这使用[Apt](https://wiki.debian.org/Apt)来安装所有构建依赖项。
+
+如果你使用**Fedora / CentOS / RHEL**，则可以使用`yum`安装构建依赖项：
+
+```shell
+sudo yum install zlib-devel bzip2 bzip2-devel readline-devel sqlite \
+sqlite-devel openssl-devel xz xz-devel libffi-devel
+```
+
+此命令将使用安装Python的所有构建依赖项`yum`。
+
+**macOS**用户可以使用以下命令：
+
+```shell
+brew install readline xz
+```
+
+此命令依赖于[Homebrew](https://brew.sh/)并为macOS用户安装少量依赖项。
+
+如果你改为使用**openSUSE，**那么你将运行以下命令：
+
+```shell
+zypper in zlib-devel bzip2 libbz2-devel libffi-devel \
+libopenssl-devel readline-devel sqlite3 sqlite3-devel xz xz-devel
+```
+
+此命令再次为你的系统安装所有Python构建依赖项。
+
+最后，对于**Alpine**用户，你可以使用：
+
+```shell
+apk add libffi-dev ncurses-dev openssl-dev readline-dev \
+tk-dev xz-dev zlib-dev
+```
+
+此命令[`apk`](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management)用作包管理器，并将在Alpine上安装Python的所有构建依赖项。
+
