@@ -204,3 +204,57 @@ with open('test.txt', 'r') as fp:
     print(line)
 ```
 
+### 2.4、什么是上下文管理器？with上下文管理器原理？
+
+任何实现了 `__enter__()` 和 `__exit__()` 方法的对象都可以称为上下文管理器。上下文管理器对象可以使用 `with` 关键字。
+
+with方法常用于打开文件，使用with方法打开文件后可以自动关闭文件，即使打开或者使用文件时出现错误，文件也会被正确关闭。
+
+下面是一个自定义的文件类，该类实现了 `__enter__()` 和 `__exit__()` 
+
+```python
+class File:
+  def __init__(self, filename, mode):
+    self.filename = filename
+    self.mode = mode
+    
+  def __enter__():
+    self.f = open(self.filename, self.mode)
+    return self.f
+  
+  def __exit__(self, *args):
+    self.f.close()
+    
+with File('test.txt', 'r') as f:
+  f.read()
+```
+
+### 2.5、什么是全缓冲、行缓冲和无缓冲？
+
+* 全缓冲：Python中默认的缓冲区是4096个字节，当缓冲区里的空间占满后，会将数据写入到磁盘中。
+* 行缓冲：当写入的数据每遇到换行符时，就将数据写入到磁盘中。
+* 无缓冲：一写入数据，就将数据写入到磁盘中。
+
+```python
+# 三种缓冲可以通过 buffering 参数进行设置
+
+# python中默认的缓冲区(全缓冲)是4096字节
+# buffering可以设置缓冲字节大小，当写入的数据超过设置值，才会写入到文件中
+f = open('text.txt', 'w', buffering=2048)
+# 写入3个字节，打开txt文件为空
+f.write('abc')
+# 写入2045个字节，总共2048个，还是为空
+f.write('*' * 2045)
+# 此时我们在写入一个字节，就由缓冲存储到磁盘了，此时打开txt文件就可以看见数据了
+
+# 行缓冲： buffering=1
+f = open('text2.txt', 'w', buffering=1)
+f.write('abc')
+# 只要遇到换行符，就将缓存存到磁盘
+f.write('\n')
+
+
+# 无缓冲：buffering=0
+# 写入数据就直接存储到磁盘
+```
+
