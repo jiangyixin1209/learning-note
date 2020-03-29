@@ -258,3 +258,29 @@ f.write('\n')
 # 写入数据就直接存储到磁盘
 ```
 
+### 2.6、什么是序列化和反序列化？JSON序列化时常用的四个函数是什么？
+
+* 序列化：程序中的变量和对象（比如文字、图片等内容），在传输的时候需要使用二进制数据，将这些变量和对象转换为二进制数据的过程就是序列化。
+
+* 反序列化：反序列化就是序列化的逆过程，把取出来的二进制对象重建为变量或者对象。
+
+JSON中常用的四个函数
+
+* json.dump: 将数据序列化到文件中
+* json.load: 将文件中的内容反序列化读取出来
+* json.dumps: 将Python字典对象为JSON的字符串格式
+* json.loads: 将JSON的字符串转换为Python字典对象
+
+### 2.7、JSON中dumps转换数据的时候如何保持中文编码？
+
+通过参数 `ensure_asill` 解决
+
+```python
+# json.dumps序列化时默认使用ascill编码，如果要写入中文，则要加上ensure_ascii=False
+
+import json
+a = json.dumps({'name': "小城"}, ensure_ascii=False)
+print(a)
+# {"name": "小城"}
+```
+
