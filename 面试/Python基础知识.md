@@ -268,8 +268,8 @@ JSON中常用的四个函数
 
 * json.dump: 将数据序列化到文件中
 * json.load: 将文件中的内容反序列化读取出来
-* json.dumps: 将Python字典对象为JSON的字符串格式
-* json.loads: 将JSON的字符串转换为Python字典对象
+* json.dumps: 将Python对象为JSON的字符串格式
+* json.loads: 将JSON的字符串转换为Python对象
 
 ### 2.7、JSON中dumps转换数据的时候如何保持中文编码？
 
@@ -282,5 +282,65 @@ import json
 a = json.dumps({'name': "小城"}, ensure_ascii=False)
 print(a)
 # {"name": "小城"}
+```
+
+***
+
+## 3、数据类型
+
+### 3.1、Python中的可变和不可变数据类型是什么？
+
+可以通过判断对象的内存地址是否变化确定数据的类型
+
+* 可变数据类型：数据的值改变，对象的id值不变
+* 不可变数据类型：数据的值改变，对象的id值也随之改变
+
+> 字典是可变类型，但是字典中的key是不可变类型
+
+可变：列表、集合、字段
+
+不可变：元组，字符串，整形
+
+### 3.2、is 和 == 有什么区别？
+
+* is：把两个对象的id值进行比较，查看他们是否相等，是否指向同一个内存地址，如果id值相等，就是同一个实例对象。
+* ==：把两个对象的值进行比较，调用`eq()` 方法，值如果相等就是true，但是它们的id不一定相等。
+
+### 3.3、Python单词大小写转换和字母统计？
+
+* 每个单词首字母大写： title()
+* 句子第一个字母大写：capitalize()
+* 所有字母大写小写：upper()、lower()
+* 统计某个字母出现的次数: count()
+
+### 3.4、字符串、列表、元组如何反转？反转函数 `reverse` 和 `reversed` 的区别？
+
+* reverse：是列表反转的一个方法，用于整个列表元素顺序反转排列
+* reversed：是一个反转方法，返回的是一个迭代器，只要是可迭代对象都可以使用该方法进行反转。
+
+```python
+# reverse 列表反转
+l1 = [1, 2, 3]
+l1.reverse()
+print(l1)
+
+# reversed
+l2 = [4, 5, 6]
+print(reversed(l2))  # 迭代器对象内存地址
+print(list(reversed(l2)))
+
+# 字符串反转
+str1 = 'abced12345'
+str2 = ''.join(reversed(str1))  # 使用join拼接反转后的字符
+str3 = str1[::-1]  # 使用切片方式
+print(str2)
+print(str3)
+
+# 输出结果：
+# [3, 2, 1]
+# <list_reverseiterator object at 0x0003545427A5454682E8>
+# [6, 5, 4]
+# 54321decba
+# 54321decba
 ```
 
