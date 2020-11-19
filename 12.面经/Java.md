@@ -4,7 +4,27 @@ SpringBoot启动的时候会通过 `@EnableAutoConfiguration` 注解找到 `META
 
 ### 2.简述 Java 的 happen befor 原则
 
-占坑
+在Java内存模型（JMM）中，如果一个操作的执行结果需要对另一个操作可见，那么两个操作必须要存在happens-before关系。
+
+happens-before原则是判断数据是否存在竞争，线程是否安全的主要依据。happends-before 也可解释为`生效可见于` 
+
+**happens-before原则定义如下**：
+
+1. 如果一个操作happens-before另一个操作，那么第一个操作的执行结果将对第二个操作可见，而且第一个操作的执行顺序排在第二个操作之前。 
+2. 两个操作之间存在happens-before关系，并不意味着一定要按照happens-before原则制定的顺序来执行。如果重排序之后的执行结果与按照happens-before关系来执行的结果一致，那么这种重排序并不非法。
+
+**happens-before原则规则**：
+
+* 程序次序规则：在同一个线程中，写在前面的操作happen-before后面的操作
+* 锁定规则：同一个锁的unlock操作happen-before此锁的lock操作
+* volatile变量规则：对一个volatile变量的写操作happen-before对此变量的任意操作
+* 传递性规则：如果A操作 happen-before B操作，B操作happen-before C操作，那么A操作happen-before C操作
+* 线程启动规则：同一个线程的start方法happen-before此线程的其它方法
+* 线程中断规则：对线程interrupt方法的调用happen-before被中断线程的检测到中断发送的代码
+* 线程终结规则：线程中所有的操作都先行发生于线程的终止检测
+* 对象终结规则：一个对象的初始化完成先行发生于他的finalize()方法的开始
+
+
 
 ### 3.简述 synchronize、volatile和可重入锁的不同使用场景及优缺点
 
