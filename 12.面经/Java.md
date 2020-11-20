@@ -41,6 +41,10 @@ equals : equals底层默认实现是采用了 `==` 的方式，效果和使用 `
 
 ### 6.JVM中内存模型是怎么样的，简述新生代与老年代的区别？
 
+![img](https://i.loli.net/2020/11/20/OgFdkEBMTt56qCI.png)
+
+
+
 新生代也称为年轻代，分为 `Eden` 和 `Survivor` 两个区，而 `Survivor` 又分为 `To Survivor` 和 `From Survivor` 。新生代采用的是复制算法，新对象首先会被分配到 `Eden` 区（如果是大对象则会进入老年代），当Eden区没有足够的空间后会触发jvm触发一次 `Minor GC` ，如果一个对象经过一次 `Minor GC` 仍然存活并且能被 `Survivor` 区接受，则该对象将会被移到 `Survivor` 区，并且该对象的年龄加1，当对象年龄到达一定程度（默认为15）则将会被晋升到老年代。
 老年代采用标记整理算法(Mark-Compact)，如果老年代没有足够空间后会执行一次 Full GC。
 
@@ -66,7 +70,7 @@ equals : equals底层默认实现是采用了 `==` 的方式，效果和使用 `
 
 ### 12. String类能不能被继承？为什么？
 
-占坑
+String类不能被继承，因为String类被 `final` 关键字修饰，被 `final` 修饰的类不能被继承。
 
 ### 13. 集合类中的List和Map的线程安全版本是什么？如何保证线程安全的？
 
