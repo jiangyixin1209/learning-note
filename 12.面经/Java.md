@@ -181,7 +181,10 @@ String类不能被继承，因为String类被 `final` 关键字修饰，被 `fin
 
 ### 17. volatile 关键字解决了什么问题，它的实现原理是什么？
 
-占坑
+volatile 是 Java虚拟机提供的轻量级同步机制，主要是用来解决可见性和有序性问题。
+
+* **lock指令来保证有序性** ：对volatile修饰的变量，执行写操作的话，JVM会发送一条lock前缀指令给CPU，CPU在计算完之后会立即将这个值写回主内存，同时因为有MESI缓存一致性协议，所以各个CPU都会对总线进行嗅探，自己本地缓存中的数据是否被别人修改。如果发现别人修改了某个缓存的数据，那么CPU就会将自己本地缓存的数据过期掉，然后这个CPU上执行的线程在读取那个变量的时候，就会从主内存重新加载最新的数据。
+* **内存屏障用来保证有序性** ：对于volatile修改变量的读写操作，都会加入内存屏障。每个volatile写操作前面，加StoreStore屏障，禁止上面的普通写和重排；每个volatile写操作后面，加StoreLoad屏障，禁止跟下面的volatile读/写重排。每个volatile读操作前面，加LoadLoad屏障，禁止下面的普通读和voaltile读重排；每个volatile读操作后面，加LoadStore屏障，禁止下面的普通写和volatile读重排。
 
 ### 18. HashMap 与 ConcurrentHashMap 的实现原理是怎么样的？
 
