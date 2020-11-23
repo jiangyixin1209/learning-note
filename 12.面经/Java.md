@@ -50,7 +50,71 @@ equals : equals底层默认实现是采用了 `==` 的方式，效果和使用 `
 
 ### 7.实现单例设计模式(懒汉、饿汉)
 
-占坑
+```java
+/**
+ * 饿汉式
+ */
+public class Singleton {
+  private final static Singleton instance = new Singleton();
+  private Singleton() {}
+  public static Singleton getInstance() {
+    return instance;
+  }
+}
+```
+
+```java
+/**
+ * 懒汉式
+ */
+public class Singleton {
+  private static Singleton instance;
+  private Singleton() {}
+  public static Singleton getInstance() {
+    if (instance == null) {
+      instance = new Singleton();
+    }
+    return instance;
+  }
+}
+```
+
+```java
+
+/**
+ * 双检锁机制懒汉式
+ */
+public class Singleton {
+  private static Singleton instance;
+  private Singleton() {}
+  public static Singleton getInstance() {
+    if (instance == null) {
+      synchronized (Singleton.class) {
+        if (instance == null) {
+          instance = new Singleton();
+        }
+      }
+    }
+    return instance;
+  }
+}
+```
+
+```java
+/**
+ * 静态内部类单例模式
+ */
+public class Singleton {
+  private Singleton() {}
+  public static Singleton getInstance() {
+    return Inner.singletonHolder;
+  }
+  private static class Inner {
+    private final static Singleton singletonHolder = new Singleton();
+  }
+}
+
+```
 
 ### 8.简述 BIO、NIO  和 AIO 的区别
 
